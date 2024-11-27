@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "991522888356",
+    "firebase_url": "https://naviquezon-c30c1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "naviquezon-c30c1",
+    "storage_bucket": "naviquezon-c30c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991522888356:android:7956ae380ee607796ea431",
+        "android_client_info": {
+          "package_name": "com.cstc.naviquezon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApeJ7wGiUt5Jmx0vVXHuOx3fhU116C4cM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
