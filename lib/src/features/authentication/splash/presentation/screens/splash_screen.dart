@@ -8,6 +8,8 @@ import 'package:naviquezon/src/core/widgets/scaffolds/background_scaffold.dart';
 import 'package:naviquezon/src/features/authentication/login/presentation/screens/login_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/presentation/screens/registration_screen.dart';
 
+import '../../../../profile/presentation/screens/terms_and_conditions.dart';
+
 ///{@template SplashScreen}
 /// Screen that display the initial page of the app.
 ///{@endtemplate}
@@ -31,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _showButtons = true;
       });
@@ -65,6 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
               if (_showButtons) ...[
                 Column(
                   children: [
+
                     RoundedButton(
                       width: MediaQuery.of(context).size.width * 0.6,
                       onPressed: _onAccountLoginPressed,
@@ -75,7 +78,23 @@ class _SplashScreenState extends State<SplashScreen> {
                       width: MediaQuery.of(context).size.width * 0.6,
                       onPressed: _onAccountCreationPressed,
                       label: 'Account Creation',
+
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TermsAndConditionsScreen()),
+                        );
+                      },
+                      child: Text(
+                        'About Terms and Conditions',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ],
@@ -85,4 +104,5 @@ class _SplashScreenState extends State<SplashScreen> {
       },
     );
   }
+
 }
