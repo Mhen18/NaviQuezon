@@ -154,10 +154,13 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
                 if (fileSize > maxFileSize) {
                   if (mounted) {
                     AppSnackBar.error(context).show(
-                      'Video file size exceeds 20MB.',
+                      'Video file size exceeds 50MB.',
                     );
                   }
                 } else {
+                  setState(() {
+                    _pathVideo=value.path;
+                  });
                   _videoCubit.run(value.path, PathEnum.file);
                 }
               }
@@ -249,6 +252,7 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
               context.pop(true);
             }
           },
+
           child: Scrollbar(
             thumbVisibility: true,
             thickness: 8,

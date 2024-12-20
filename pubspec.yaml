@@ -2,7 +2,7 @@ name: naviquezon
 description: "A new Flutter project that can be use to create itinerary list 
 for user, add and edit establishment for owner, and get the report for tourist admin"
 publish_to: 'none'
-version: 1.0.14+1
+version: 1.0.16+1
 
 environment:
   sdk: ^3.5.3
