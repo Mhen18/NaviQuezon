@@ -1,4 +1,5 @@
 import 'package:country_list/country_list.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +27,7 @@ import 'package:naviquezon/src/features/authentication/registration/domain/model
 import 'package:naviquezon/src/features/authentication/registration/domain/models/region_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/registration_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/presentation/screens/registration_validation_screen.dart';
+import 'package:naviquezon/src/features/profile/presentation/screens/terms_and_conditions.dart';
 
 ///{@template RegistrationScreen}
 /// Screen for the registration.
@@ -131,14 +133,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _regionCubit.run();
   }
 
+  /// Method to show the terms and condition dialog.
+  ///
+  void _showTermsAndConditionDialog() {
+    showDialog<_RegistrationTermsAndConditionDialog>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return _RegistrationTermsAndConditionDialog(
+          onAcceptPressed: () {
+            //  Close the dialog.
+            Navigator.pop(context);
+
+            //  Run the registration cubit.
+            _registrationCubit.run(registration: _registration);
+          },
+        );
+      },
+    );
+  }
+
   /// Method to handle the next button.
   ///
   void _onNextPressed() {
     //  Remove the focus from the text fields.
     FocusScope.of(context).unfocus();
 
-    //  Run the registration cubit.
-    _registrationCubit.run(registration: _registration);
+    //  Show the terms and condition dialog.
+    _showTermsAndConditionDialog();
   }
 
   /// Method to handle the role dropdown changed.
@@ -717,6 +739,71 @@ class _ProvinceDropdown extends StatelessWidget {
           label: 'Province',
         );
       },
+    );
+  }
+}
+
+///{@template _RegistrationTermsAndConditionDialog}
+/// Custom dialog for the terms and condition.
+///{@endtemplate}
+class _RegistrationTermsAndConditionDialog extends StatelessWidget {
+  ///{@macro _RegistrationTermsAndConditionDialog}
+  const _RegistrationTermsAndConditionDialog({
+    required void Function() onAcceptPressed,
+  }) : _onAcceptPressed = onAcceptPressed;
+
+  final void Function() _onAcceptPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 10,
+          children: [
+            const Icon(
+              Icons.info_outline,
+              color: Colors.blue,
+            ),
+            const Gap(8),
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(
+                    text: 'By clicking "Accept", you agree to our ',
+                  ),
+                  TextSpan(
+                    text: 'terms and conditions',
+                    style: const TextStyle(
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        context.push(
+                          TermsAndConditionsScreen.route,
+                        );
+                      },
+                  ),
+                ],
+              ),
+              style: const TextStyle(color: Colors.blue),
+              textAlign: TextAlign.center,
+            ),
+            const Gap(8),
+            RoundedButton(
+              onPressed: _onAcceptPressed,
+              label: 'Accept',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
