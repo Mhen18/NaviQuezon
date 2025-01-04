@@ -13,7 +13,7 @@ import 'package:naviquezon/src/features/authentication/registration/domain/model
 class RegistrationFirebaseRepository {
   /// Future method to push profile registration.
   ///
-  static Future<Either<Failure, void>> pushRegistration({
+  static Future<Either<Failure, String?>> pushRegistration({
     required RegistrationModel registration,
   }) async {
     try {
@@ -83,11 +83,14 @@ class RegistrationFirebaseRepository {
           profileId: profile.key!,
         );
 
-        return validation;
+        return validation.fold(
+          Left.new,
+          (_) => const Right(null),
+        );
       }
 
-      //  Return a right value.
-      return const Right(null);
+      //  Return the profile key as the account id
+      return Right(profile.key);
     } catch (e) {
       //  Rethrow the exception
       rethrow;
