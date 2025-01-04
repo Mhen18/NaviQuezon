@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return BackgroundScaffold(
-      foregroundColor: Colors.white.withOpacity(0.5),
+      foregroundColor: Colors.white.withValues(alpha: 0.5),
       body: (role) {
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -67,7 +67,6 @@ class _SplashScreenState extends State<SplashScreen> {
               if (_showButtons) ...[
                 Column(
                   children: [
-
                     RoundedButton(
                       width: MediaQuery.of(context).size.width * 0.6,
                       onPressed: _onAccountLoginPressed,
@@ -78,23 +77,21 @@ class _SplashScreenState extends State<SplashScreen> {
                       width: MediaQuery.of(context).size.width * 0.6,
                       onPressed: _onAccountCreationPressed,
                       label: 'Account Creation',
-
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => TermsAndConditionsScreen()),
+                        context.push(
+                          TermsAndConditionsScreen.route,
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'About Terms and Conditions',
                         style: TextStyle(
                           color: Colors.blue,
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
@@ -104,5 +101,4 @@ class _SplashScreenState extends State<SplashScreen> {
       },
     );
   }
-
 }
