@@ -1,17 +1,24 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
+import 'package:naviquezon/src/core/services/shared_pref_service.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
+import 'package:naviquezon/src/core/utils/keys/shared_pref_keys.dart';
 import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/registration_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/infrastructures/repositories/registration_firebase_repository.dart';
+import 'package:naviquezon/src/features/profile/domain/models/profile_model.dart';
+import 'package:naviquezon/src/features/profile/infrastructure/services/profile_service.dart';
 
 ///{@template RegistrationService}
 /// Service for registration authentication module.
 ///{@endtemplate}
 class RegistrationService {
+  final _profileService = ProfileService();
+  final _sharedPrefService = SharedPrefService();
+
   /// Future method to post the registration for user role.
   ///
-  Future<Either<Failure, void>> postRegistration({
+  Future<Either<Failure, ProfileModel?>> postRegistration({
     required RegistrationModel registration,
   }) async {
     try {
@@ -58,9 +65,26 @@ class RegistrationService {
       //  Fold the result.
       return repo.fold(
         Left.new,
-        Right.new,
+        (r) async {
+          //  Get the profile key as the account id
+          final profileId = r;
+
+          //  Check if the profile id is available.
+          if (profileId != null) {
+            //  Set the user id in shared preference.
+            await _sharedPrefService.setStringSharedPref(spUserId, profileId);
+
+            //  Get the profile.
+            final profile = await _profileService.getProfile();
+
+            //  Return the profile result.
+            return profile;
+          } else {
+            return const Right(null);
+          }
+        },
       );
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
