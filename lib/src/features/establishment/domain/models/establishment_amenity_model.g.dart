@@ -15,18 +15,9 @@ _$EstablishmentAmenityModelImpl _$$EstablishmentAmenityModelImplFromJson(
     );
 
 Map<String, dynamic> _$$EstablishmentAmenityModelImplToJson(
-    _$EstablishmentAmenityModelImpl instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('is_free', instance.isFree);
-  writeNotNull('is_popular', instance.isPopular);
-  return val;
-}
+        _$EstablishmentAmenityModelImpl instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      if (instance.isFree case final value?) 'is_free': value,
+      if (instance.isPopular case final value?) 'is_popular': value,
+    };

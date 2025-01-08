@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
+import 'package:naviquezon/src/core/models/address_model.dart';
 import 'package:naviquezon/src/core/services/shared_pref_service.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
 import 'package:naviquezon/src/core/utils/keys/shared_pref_keys.dart';
@@ -19,6 +20,7 @@ import 'package:naviquezon/src/features/establishment/infrastructure/repositorie
 ///{@endtemplate}
 class EstablishmentService {
   final _sharedPrefService = SharedPrefService();
+
   /// Future method to get the owner's establishment.
   ///
   Future<Either<Failure, EstablishmentModel?>> getOwnerEstablishment() async {
@@ -74,7 +76,6 @@ class EstablishmentService {
           }
         }
       }
-
 
       return Right(establishmentList);
     } on Exception catch (e, stackTrace) {
@@ -234,19 +235,13 @@ class EstablishmentService {
   ///
   Future<Either<Failure, void>> addEstablishmentSurvey({
     required EstablishmentSurveyModel survey,
+    required AddressModel address,
     required String establishmentId,
   }) async {
     try {
-      final userId = await _sharedPrefService.readStringSharedPref(spUserId);
-
-      if (userId == null) {
-        return const Left(DefaultFailure());
-      }
-
       await EstablishmentFirebaseRepository.postEstablishmentSurvey(
-        survey: survey.copyWith(
-          userId: userId,
-        ),
+        survey: survey,
+        address: address,
         establishmentId: establishmentId,
       );
 

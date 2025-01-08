@@ -33,23 +33,38 @@ EstablishmentSurveyModel _$EstablishmentSurveyModelFromJson(
 
 /// @nodoc
 mixin _$EstablishmentSurveyModel {
-  String? get userId => throw _privateConstructorUsedError;
   num? get date => throw _privateConstructorUsedError;
   num get total => throw _privateConstructorUsedError;
   num get female => throw _privateConstructorUsedError;
   num get male => throw _privateConstructorUsedError;
   Object? get createdDate => throw _privateConstructorUsedError;
   Object? get updatedDate => throw _privateConstructorUsedError;
+  String? get country => throw _privateConstructorUsedError;
+  String? get region => throw _privateConstructorUsedError;
+  String? get province => throw _privateConstructorUsedError;
+  String? get municipality => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)
         $default, {
     required TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
@@ -58,14 +73,26 @@ mixin _$EstablishmentSurveyModel {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult? Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult? Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
@@ -74,14 +101,26 @@ mixin _$EstablishmentSurveyModel {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
@@ -125,7 +164,15 @@ abstract class $EstablishmentSurveyModelCopyWith<$Res> {
           $Res Function(EstablishmentSurveyModel) then) =
       _$EstablishmentSurveyModelCopyWithImpl<$Res, EstablishmentSurveyModel>;
   @useResult
-  $Res call({String userId, num date, num total, num female, num male});
+  $Res call(
+      {num date,
+      num total,
+      num female,
+      num male,
+      String country,
+      String? region,
+      String? province,
+      String? municipality});
 }
 
 /// @nodoc
@@ -144,17 +191,16 @@ class _$EstablishmentSurveyModelCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
     Object? date = null,
     Object? total = null,
     Object? female = null,
     Object? male = null,
+    Object? country = null,
+    Object? region = freezed,
+    Object? province = freezed,
+    Object? municipality = freezed,
   }) {
     return _then(_value.copyWith(
-      userId: null == userId
-          ? _value.userId!
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
       date: null == date
           ? _value.date!
           : date // ignore: cast_nullable_to_non_nullable
@@ -171,6 +217,22 @@ class _$EstablishmentSurveyModelCopyWithImpl<$Res,
           ? _value.male
           : male // ignore: cast_nullable_to_non_nullable
               as num,
+      country: null == country
+          ? _value.country!
+          : country // ignore: cast_nullable_to_non_nullable
+              as String,
+      region: freezed == region
+          ? _value.region
+          : region // ignore: cast_nullable_to_non_nullable
+              as String?,
+      province: freezed == province
+          ? _value.province
+          : province // ignore: cast_nullable_to_non_nullable
+              as String?,
+      municipality: freezed == municipality
+          ? _value.municipality
+          : municipality // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -185,13 +247,16 @@ abstract class _$$EstablishmentSurveyModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String userId,
-      num date,
+      {num date,
       num total,
       num female,
       num male,
       num createdDate,
-      num updatedDate});
+      num updatedDate,
+      String? country,
+      String? region,
+      String? province,
+      String? municipality});
 }
 
 /// @nodoc
@@ -209,19 +274,18 @@ class __$$EstablishmentSurveyModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
     Object? date = null,
     Object? total = null,
     Object? female = null,
     Object? male = null,
     Object? createdDate = null,
     Object? updatedDate = null,
+    Object? country = freezed,
+    Object? region = freezed,
+    Object? province = freezed,
+    Object? municipality = freezed,
   }) {
     return _then(_$EstablishmentSurveyModelImpl(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
       date: null == date
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
@@ -246,6 +310,22 @@ class __$$EstablishmentSurveyModelImplCopyWithImpl<$Res>
           ? _value.updatedDate
           : updatedDate // ignore: cast_nullable_to_non_nullable
               as num,
+      country: freezed == country
+          ? _value.country
+          : country // ignore: cast_nullable_to_non_nullable
+              as String?,
+      region: freezed == region
+          ? _value.region
+          : region // ignore: cast_nullable_to_non_nullable
+              as String?,
+      province: freezed == province
+          ? _value.province
+          : province // ignore: cast_nullable_to_non_nullable
+              as String?,
+      municipality: freezed == municipality
+          ? _value.municipality
+          : municipality // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -255,21 +335,22 @@ class __$$EstablishmentSurveyModelImplCopyWithImpl<$Res>
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
   const _$EstablishmentSurveyModelImpl(
-      {required this.userId,
-      required this.date,
+      {required this.date,
       required this.total,
       required this.female,
       required this.male,
       required this.createdDate,
       required this.updatedDate,
+      this.country = sPhilippines,
+      this.region,
+      this.province,
+      this.municipality,
       final String? $type})
       : $type = $type ?? 'default';
 
   factory _$EstablishmentSurveyModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$EstablishmentSurveyModelImplFromJson(json);
 
-  @override
-  final String userId;
   @override
   final num date;
   @override
@@ -282,13 +363,22 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
   final num createdDate;
   @override
   final num updatedDate;
+  @override
+  @JsonKey()
+  final String? country;
+  @override
+  final String? region;
+  @override
+  final String? province;
+  @override
+  final String? municipality;
 
   @JsonKey(name: 'runtimeType')
   final String $type;
 
   @override
   String toString() {
-    return 'EstablishmentSurveyModel(userId: $userId, date: $date, total: $total, female: $female, male: $male, createdDate: $createdDate, updatedDate: $updatedDate)';
+    return 'EstablishmentSurveyModel(date: $date, total: $total, female: $female, male: $male, createdDate: $createdDate, updatedDate: $updatedDate, country: $country, region: $region, province: $province, municipality: $municipality)';
   }
 
   @override
@@ -296,7 +386,6 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$EstablishmentSurveyModelImpl &&
-            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.total, total) || other.total == total) &&
             (identical(other.female, female) || other.female == female) &&
@@ -304,13 +393,19 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
             (identical(other.createdDate, createdDate) ||
                 other.createdDate == createdDate) &&
             (identical(other.updatedDate, updatedDate) ||
-                other.updatedDate == updatedDate));
+                other.updatedDate == updatedDate) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.region, region) || other.region == region) &&
+            (identical(other.province, province) ||
+                other.province == province) &&
+            (identical(other.municipality, municipality) ||
+                other.municipality == municipality));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, userId, date, total, female, male, createdDate, updatedDate);
+  int get hashCode => Object.hash(runtimeType, date, total, female, male,
+      createdDate, updatedDate, country, region, province, municipality);
 
   /// Create a copy of EstablishmentSurveyModel
   /// with the given fields replaced by the non-null parameter values.
@@ -324,54 +419,90 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)
         $default, {
     required TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
         add,
   }) {
-    return $default(
-        userId, date, total, female, male, createdDate, updatedDate);
+    return $default(date, total, female, male, createdDate, updatedDate,
+        country, region, province, municipality);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult? Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult? Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
   }) {
-    return $default?.call(
-        userId, date, total, female, male, createdDate, updatedDate);
+    return $default?.call(date, total, female, male, createdDate, updatedDate,
+        country, region, province, municipality);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
@@ -379,8 +510,8 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
     required TResult orElse(),
   }) {
     if ($default != null) {
-      return $default(
-          userId, date, total, female, male, createdDate, updatedDate);
+      return $default(date, total, female, male, createdDate, updatedDate,
+          country, region, province, municipality);
     }
     return orElse();
   }
@@ -426,19 +557,20 @@ class _$EstablishmentSurveyModelImpl implements _EstablishmentSurveyModel {
 
 abstract class _EstablishmentSurveyModel implements EstablishmentSurveyModel {
   const factory _EstablishmentSurveyModel(
-      {required final String userId,
-      required final num date,
+      {required final num date,
       required final num total,
       required final num female,
       required final num male,
       required final num createdDate,
-      required final num updatedDate}) = _$EstablishmentSurveyModelImpl;
+      required final num updatedDate,
+      final String? country,
+      final String? region,
+      final String? province,
+      final String? municipality}) = _$EstablishmentSurveyModelImpl;
 
   factory _EstablishmentSurveyModel.fromJson(Map<String, dynamic> json) =
       _$EstablishmentSurveyModelImpl.fromJson;
 
-  @override
-  String get userId;
   @override
   num get date;
   @override
@@ -451,6 +583,14 @@ abstract class _EstablishmentSurveyModel implements EstablishmentSurveyModel {
   num get createdDate;
   @override
   num get updatedDate;
+  @override
+  String? get country;
+  @override
+  String? get region;
+  @override
+  String? get province;
+  @override
+  String? get municipality;
 
   /// Create a copy of EstablishmentSurveyModel
   /// with the given fields replaced by the non-null parameter values.
@@ -473,7 +613,10 @@ abstract class _$$EstablishmentSurveyAddModelImplCopyWith<$Res>
       {num total,
       num female,
       num male,
-      String? userId,
+      String country,
+      String? region,
+      String? province,
+      String? municipality,
       num? date,
       Map<String, dynamic>? createdDate,
       Map<String, dynamic>? updatedDate});
@@ -497,7 +640,10 @@ class __$$EstablishmentSurveyAddModelImplCopyWithImpl<$Res>
     Object? total = null,
     Object? female = null,
     Object? male = null,
-    Object? userId = freezed,
+    Object? country = null,
+    Object? region = freezed,
+    Object? province = freezed,
+    Object? municipality = freezed,
     Object? date = freezed,
     Object? createdDate = freezed,
     Object? updatedDate = freezed,
@@ -515,9 +661,21 @@ class __$$EstablishmentSurveyAddModelImplCopyWithImpl<$Res>
           ? _value.male
           : male // ignore: cast_nullable_to_non_nullable
               as num,
-      userId: freezed == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
+      country: null == country
+          ? _value.country
+          : country // ignore: cast_nullable_to_non_nullable
+              as String,
+      region: freezed == region
+          ? _value.region
+          : region // ignore: cast_nullable_to_non_nullable
+              as String?,
+      province: freezed == province
+          ? _value.province
+          : province // ignore: cast_nullable_to_non_nullable
+              as String?,
+      municipality: freezed == municipality
+          ? _value.municipality
+          : municipality // ignore: cast_nullable_to_non_nullable
               as String?,
       date: freezed == date
           ? _value.date
@@ -544,7 +702,10 @@ class _$EstablishmentSurveyAddModelImpl
       {required this.total,
       required this.female,
       required this.male,
-      this.userId,
+      required this.country,
+      this.region,
+      this.province,
+      this.municipality,
       this.date,
       final Map<String, dynamic>? createdDate,
       final Map<String, dynamic>? updatedDate,
@@ -564,7 +725,13 @@ class _$EstablishmentSurveyAddModelImpl
   @override
   final num male;
   @override
-  final String? userId;
+  final String country;
+  @override
+  final String? region;
+  @override
+  final String? province;
+  @override
+  final String? municipality;
   @override
   final num? date;
   final Map<String, dynamic>? _createdDate;
@@ -592,7 +759,7 @@ class _$EstablishmentSurveyAddModelImpl
 
   @override
   String toString() {
-    return 'EstablishmentSurveyModel.add(total: $total, female: $female, male: $male, userId: $userId, date: $date, createdDate: $createdDate, updatedDate: $updatedDate)';
+    return 'EstablishmentSurveyModel.add(total: $total, female: $female, male: $male, country: $country, region: $region, province: $province, municipality: $municipality, date: $date, createdDate: $createdDate, updatedDate: $updatedDate)';
   }
 
   @override
@@ -603,7 +770,12 @@ class _$EstablishmentSurveyAddModelImpl
             (identical(other.total, total) || other.total == total) &&
             (identical(other.female, female) || other.female == female) &&
             (identical(other.male, male) || other.male == male) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.region, region) || other.region == region) &&
+            (identical(other.province, province) ||
+                other.province == province) &&
+            (identical(other.municipality, municipality) ||
+                other.municipality == municipality) &&
             (identical(other.date, date) || other.date == date) &&
             const DeepCollectionEquality()
                 .equals(other._createdDate, _createdDate) &&
@@ -618,7 +790,10 @@ class _$EstablishmentSurveyAddModelImpl
       total,
       female,
       male,
-      userId,
+      country,
+      region,
+      province,
+      municipality,
       date,
       const DeepCollectionEquality().hash(_createdDate),
       const DeepCollectionEquality().hash(_updatedDate));
@@ -635,53 +810,90 @@ class _$EstablishmentSurveyAddModelImpl
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)
         $default, {
     required TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
         add,
   }) {
-    return add(total, female, male, userId, date, createdDate, updatedDate);
+    return add(total, female, male, country, region, province, municipality,
+        date, createdDate, updatedDate);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult? Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult? Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
   }) {
-    return add?.call(
-        total, female, male, userId, date, createdDate, updatedDate);
+    return add?.call(total, female, male, country, region, province,
+        municipality, date, createdDate, updatedDate);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String userId, num date, num total, num female, num male,
-            num createdDate, num updatedDate)?
+    TResult Function(
+            num date,
+            num total,
+            num female,
+            num male,
+            num createdDate,
+            num updatedDate,
+            String? country,
+            String? region,
+            String? province,
+            String? municipality)?
         $default, {
     TResult Function(
             num total,
             num female,
             num male,
-            String? userId,
+            String country,
+            String? region,
+            String? province,
+            String? municipality,
             num? date,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
@@ -689,7 +901,8 @@ class _$EstablishmentSurveyAddModelImpl
     required TResult orElse(),
   }) {
     if (add != null) {
-      return add(total, female, male, userId, date, createdDate, updatedDate);
+      return add(total, female, male, country, region, province, municipality,
+          date, createdDate, updatedDate);
     }
     return orElse();
   }
@@ -739,7 +952,10 @@ abstract class _EstablishmentSurveyAddModel
           {required final num total,
           required final num female,
           required final num male,
-          final String? userId,
+          required final String country,
+          final String? region,
+          final String? province,
+          final String? municipality,
           final num? date,
           final Map<String, dynamic>? createdDate,
           final Map<String, dynamic>? updatedDate}) =
@@ -755,7 +971,13 @@ abstract class _EstablishmentSurveyAddModel
   @override
   num get male;
   @override
-  String? get userId;
+  String get country;
+  @override
+  String? get region;
+  @override
+  String? get province;
+  @override
+  String? get municipality;
   @override
   num? get date;
   @override

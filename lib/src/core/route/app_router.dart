@@ -20,7 +20,6 @@ import 'package:naviquezon/src/core/route/establishment/establishment_reviews_ro
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_amenity_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_assets_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_route.dart';
-import 'package:naviquezon/src/core/route/establishment/establishment_visited_route.dart';
 import 'package:naviquezon/src/core/route/faq/faq_setup_route.dart';
 import 'package:naviquezon/src/core/route/profile/profile_edit_route.dart';
 import 'package:naviquezon/src/core/route/profile/profile_password_edit_route.dart';
@@ -74,7 +73,6 @@ class AppRouter {
       EstablishmentImageRoute.route,
       EstablishmentLikeRoute.route,
       EstablishmentReviewsRoute.route,
-      EstablishmentVisitedRoute.route,
 
       //  Profile
       ProfileEditRoute.route,

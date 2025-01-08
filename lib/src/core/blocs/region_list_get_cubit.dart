@@ -3,16 +3,16 @@ import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/services/location_service.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/region_model.dart';
 
-///{@template FetchRegionListCubit}
+///{@template RegionListGetCubit}
 /// Cubit for fetching the list of regions.
 ///{@endtemplate}
-class FetchRegionListCubit extends Cubit<CubitState> {
-  ///{@macro FetchRegionListCubit}
-  FetchRegionListCubit() : super(CubitStateInitial());
+class RegionListGetCubit extends Cubit<CubitState> {
+  ///{@macro RegionListGetCubit}
+  RegionListGetCubit() : super(CubitStateInitial());
 
   final _locationService = LocationService();
 
-  /// Future method that run and emit state for [FetchRegionListCubit].
+  /// Future method that run and emit state for [RegionListGetCubit].
   ///
   Future<void> run() async {
     //  Emit loading state.

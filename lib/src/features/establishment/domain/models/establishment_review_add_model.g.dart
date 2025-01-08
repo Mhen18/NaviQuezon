@@ -26,25 +26,16 @@ _$EstablishmentReviewAddModelImpl _$$EstablishmentReviewAddModelImplFromJson(
     );
 
 Map<String, dynamic> _$$EstablishmentReviewAddModelImplToJson(
-    _$EstablishmentReviewAddModelImpl instance) {
-  final val = <String, dynamic>{
-    'rate': instance.rate,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('user_id', instance.userId);
-  writeNotNull('comment', instance.comment);
-  writeNotNull('room', instance.room);
-  writeNotNull('cleanliness', instance.cleanliness);
-  writeNotNull('breakfast', instance.breakfast);
-  writeNotNull('service', instance.service);
-  writeNotNull('bathroom', instance.bathroom);
-  writeNotNull('created_date', instance.createdDate);
-  writeNotNull('updated_date', instance.updatedDate);
-  return val;
-}
+        _$EstablishmentReviewAddModelImpl instance) =>
+    <String, dynamic>{
+      'rate': instance.rate,
+      if (instance.userId case final value?) 'user_id': value,
+      if (instance.comment case final value?) 'comment': value,
+      if (instance.room case final value?) 'room': value,
+      if (instance.cleanliness case final value?) 'cleanliness': value,
+      if (instance.breakfast case final value?) 'breakfast': value,
+      if (instance.service case final value?) 'service': value,
+      if (instance.bathroom case final value?) 'bathroom': value,
+      if (instance.createdDate case final value?) 'created_date': value,
+      if (instance.updatedDate case final value?) 'updated_date': value,
+    };
