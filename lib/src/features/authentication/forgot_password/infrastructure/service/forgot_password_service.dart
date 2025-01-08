@@ -84,7 +84,7 @@ class ForgotPasswordService {
       return Left(
         DefaultFailure(message: e.message),
       );
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -116,7 +116,7 @@ class ForgotPasswordService {
         profileId: profile.id,
         password: password,
       );
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

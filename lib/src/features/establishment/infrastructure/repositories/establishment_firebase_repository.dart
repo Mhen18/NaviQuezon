@@ -98,7 +98,7 @@ class EstablishmentFirebaseRepository {
 
         return amenities;
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -140,7 +140,7 @@ class EstablishmentFirebaseRepository {
 
         return reviews;
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -207,7 +207,7 @@ class EstablishmentFirebaseRepository {
           }
         }
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -245,7 +245,7 @@ class EstablishmentFirebaseRepository {
           }
         }
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }

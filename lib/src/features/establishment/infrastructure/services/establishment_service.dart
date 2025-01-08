@@ -38,7 +38,7 @@ class EstablishmentService {
       );
 
       return esta;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -77,7 +77,7 @@ class EstablishmentService {
 
 
       return Right(establishmentList);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(stackTrace);
 
       return const Left(DefaultFailure());
@@ -95,7 +95,7 @@ class EstablishmentService {
       );
 
       return Right(req);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -137,7 +137,7 @@ class EstablishmentService {
       }
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -166,7 +166,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -194,7 +194,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -222,7 +222,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -251,7 +251,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

@@ -137,7 +137,7 @@ class _ScreenState extends State<EstablishmentDetailsScreen> {
       } else {
         await launchUrl(fallbackUri);
       }
-    } catch (e) {
+    } on Exception catch (e) {
       //  Catch the error and print it
       await launchUrl(fallbackUri);
       printError(e.toString());
