@@ -438,7 +438,7 @@ class _AssetImageListWidget extends StatelessWidget {
   final List<String> _pathList;
 
   /// Getter for the image length.
-  /// 
+  ///
   int get _imageLength {
     return _pathList.length < _maxImages ? _pathList.length + 1 : _maxImages;
   }
