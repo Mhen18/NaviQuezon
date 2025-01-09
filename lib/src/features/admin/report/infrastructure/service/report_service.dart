@@ -238,17 +238,21 @@ class ReportService {
         totalTotal: 0,
       );
 
+      //  Loop through the report list
       for (final report in reportList) {
-        //  Add the total
-        recordModel = recordModel.copyWith(
-          totalTotal: report.total as int,
-          totalMale: report.male as int,
-          totalFemale: report.female as int,
-        );
-
         final reportCountry = report.country;
         final reportProvince = report.province;
         final reportMunicipality = report.municipality;
+
+        //  Check if the country is not null
+        if (reportCountry != null) {
+          //  Add the total
+          recordModel = recordModel.copyWith(
+            totalTotal: report.total as int,
+            totalMale: report.male as int,
+            totalFemale: report.female as int,
+          );
+        }
 
         //  Check if the report is from the same municipality
         if (reportMunicipality == municipality) {
@@ -259,15 +263,18 @@ class ReportService {
           );
         }
 
-        //  Check if the report is from the same province
-        if (reportProvince == sQuezonProvince) {
-          //  Check if the report is from  other municipality
-          if (reportMunicipality != municipality) {
-            recordModel = recordModel.copyWith(
-              otherMunicipalityTotal: report.total as int,
-              otherMunicipalityFemale: report.female as int,
-              otherMunicipalityMale: report.male as int,
-            );
+        //  Check if the report is from the same country
+        if (reportCountry == sPhilippines) {
+          //  Check if the report is from the same province
+          if (reportProvince == sQuezonProvince) {
+            //  Check if the report is from  other municipality
+            if (reportMunicipality != municipality) {
+              recordModel = recordModel.copyWith(
+                otherMunicipalityTotal: report.total as int,
+                otherMunicipalityFemale: report.female as int,
+                otherMunicipalityMale: report.male as int,
+              );
+            }
           }
         }
 
@@ -283,13 +290,16 @@ class ReportService {
           }
         }
 
-        //  Check if the report is from other country
-        if (report.country != sPhilippines) {
-          recordModel = recordModel.copyWith(
-            otherCountryTotal: report.total as int,
-            otherCountryFemale: report.female as int,
-            otherCountryMale: report.male as int,
-          );
+        //  Check if the country is not null
+        if (reportCountry != null) {
+          //  Check if the report is from other country
+          if (reportCountry != sPhilippines) {
+            recordModel = recordModel.copyWith(
+              otherCountryTotal: report.total as int,
+              otherCountryFemale: report.female as int,
+              otherCountryMale: report.male as int,
+            );
+          }
         }
       }
 
