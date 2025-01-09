@@ -6,6 +6,6 @@ class TermsAndConditionRoute {
 
   static final route = GoRoute(
     path: path, // Use the static path
-    builder: (context, state) => TermsAndConditionsScreen(),
+    builder: (context, state) => const TermsAndConditionsScreen(),
   );
 }

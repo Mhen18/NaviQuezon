@@ -488,10 +488,14 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        if (report.municipality != _municipality) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
+        if (report.country == sPhilippines) {
+          if (report.province == sQuezonProvince) {
+            if (report.municipality != _municipality) {
+              total += report.total;
+              female += report.female;
+              male += report.male;
+            }
+          }
         }
       }
     }
@@ -526,10 +530,12 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        if (report.country != sPhilippines) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
+        if (report.country != null) {
+          if (report.country != sPhilippines) {
+            total += report.total;
+            female += report.female;
+            male += report.male;
+          }
         }
       }
     }
@@ -544,9 +550,11 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        total += report.total;
-        female += report.female;
-        male += report.male;
+        if (report.country != null) {
+          total += report.total;
+          female += report.female;
+          male += report.male;
+        }
       }
     }
 

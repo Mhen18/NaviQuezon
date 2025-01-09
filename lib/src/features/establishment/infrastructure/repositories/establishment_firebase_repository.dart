@@ -6,6 +6,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
+import 'package:naviquezon/src/core/models/address_model.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
 import 'package:naviquezon/src/core/utils/keys/database_keys.dart';
 import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
@@ -99,7 +100,7 @@ class EstablishmentFirebaseRepository {
 
         return amenities;
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -141,7 +142,7 @@ class EstablishmentFirebaseRepository {
 
         return reviews;
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -186,21 +187,11 @@ class EstablishmentFirebaseRepository {
             final reportMap = report as Map<Object?, Object?>;
 
             //  Convert the report map to establishment report model.
-            var reportModel = EstablishmentReportModel.fromJson(
+            final reportModel = EstablishmentReportModel.fromJson(
               reportMap.cast<String, dynamic>()
                 ..addAll({
                   'runtimeType': 'default',
                 }),
-            );
-
-            final profile = await ProfileFirebaseRepository.getProfile(
-              userId: reportModel.userId ?? '',
-            );
-
-            reportModel = reportModel.copyWith(
-              municipality: profile.municipality,
-              province: profile.province,
-              country: profile.country,
             );
 
             //  Add the report model to the list.
@@ -208,7 +199,7 @@ class EstablishmentFirebaseRepository {
           }
         }
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -246,7 +237,7 @@ class EstablishmentFirebaseRepository {
           }
         }
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -645,15 +636,12 @@ class EstablishmentFirebaseRepository {
   ///
   static Future<void> postEstablishmentSurvey({
     required EstablishmentSurveyModel survey,
+    required AddressModel address,
     required String establishmentId,
   }) async {
     try {
       final establishment = await getEstablishmentDetails(
         establishmentId,
-      );
-
-      final profile = await ProfileFirebaseRepository.getProfile(
-        userId: survey.userId ?? '',
       );
 
       //  Get the reference to the database
@@ -665,24 +653,27 @@ class EstablishmentFirebaseRepository {
       final surveyList = establishment.survey ?? [];
 
       final newSurvey = EstablishmentSurveyModel.add(
-        userId: profile.id,
         date: survey.date,
         total: survey.total,
         female: survey.female,
         male: survey.male,
+        country: address.country,
+        region: address.region?.name,
+        province: address.province?.name,
+        municipality: address.municipality?.name,
         createdDate: ServerValue.timestamp,
         updatedDate: ServerValue.timestamp,
       );
 
+      final surveyJson = newSurvey.toJson()..remove('runtimeType');
+
       //  Check if the reviews is empty
       if (surveyList.isEmpty) {
         //  Set the review details to the database
-        await surveyRef.set([
-          newSurvey.toJson()..remove('runtimeType'),
-        ]);
+        await surveyRef.set([surveyJson]);
       } else {
         //  Set the review details to the database with the new review
-        await surveyRef.child('${surveyList.length}').set(newSurvey.toJson());
+        await surveyRef.child('${surveyList.length}').set(surveyJson);
       }
     } catch (e) {
       rethrow;

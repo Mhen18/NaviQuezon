@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
 
 part 'establishment_survey_model.freezed.dart';
+
 part 'establishment_survey_model.g.dart';
 
 ///{@template EstablishmentSurveyModel}
@@ -14,13 +16,16 @@ class EstablishmentSurveyModel with _$EstablishmentSurveyModel {
     explicitToJson: true,
   )
   const factory EstablishmentSurveyModel({
-    required String userId,
     required num date,
     required num total,
     required num female,
     required num male,
     required num createdDate,
     required num updatedDate,
+    @Default(sPhilippines) String? country,
+    String? region,
+    String? province,
+    String? municipality,
   }) = _EstablishmentSurveyModel;
 
   ///{@macro EstablishmentSurveyModel.add}
@@ -32,7 +37,10 @@ class EstablishmentSurveyModel with _$EstablishmentSurveyModel {
     required num total,
     required num female,
     required num male,
-    String? userId,
+    required String country,
+    String? region,
+    String? province,
+    String? municipality,
     num? date,
     Map<String, dynamic>? createdDate,
     Map<String, dynamic>? updatedDate,

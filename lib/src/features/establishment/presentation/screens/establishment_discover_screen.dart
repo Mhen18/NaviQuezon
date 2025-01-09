@@ -337,7 +337,7 @@ class _EstablishmentDiscoverList extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       width: double.infinity,
-                      color: Colors.grey.withOpacity(0.5),
+                      color: Colors.grey.withValues(alpha: 0.5),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
