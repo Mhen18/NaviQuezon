@@ -192,7 +192,7 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Scaffold(
         key: _scaffoldKey,
         endDrawer: AdminDrawer(
-          isSuperAdmin: _role == AppRoleEnum.superAdmin,
+          role: _role,
           onEditPressed: _onEditPressed,
           onVerifyPressed: _onVerifyPressed,
           onFaqSetupPressed: _onFaqSetupPressed,
@@ -281,7 +281,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                   icon: const Icon(
                                     Icons.download,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                             const Gap(8),
