@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/themes/styles/color_style.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
@@ -9,6 +10,7 @@ import 'package:naviquezon/src/core/widgets/containers/error_state_container.dar
 import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
 import 'package:naviquezon/src/features/establishment/application/blocs/establishment_list_get_cubit.dart';
 import 'package:naviquezon/src/features/establishment/domain/enums/itinerary_tab_enum.dart';
+import 'package:naviquezon/src/features/establishment/domain/models/establishment_itinerary_model.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_model.dart';
 import 'package:naviquezon/src/features/establishment/presentation/widgets/establishment_card_widget.dart';
 import 'package:naviquezon/src/features/profile/application/blocs/profile_get_cubit.dart';
@@ -32,7 +34,7 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
 
   final _searchController = TextEditingController();
 
-  ItineraryTabEnum _currentTab = ItineraryTabEnum.top;
+  ItineraryTabEnum _currentTab = ItineraryTabEnum.created;
 
   /// Getter to get the profile model
   ///
@@ -61,11 +63,11 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
 
   /// Method to handle the top list tab button pressed
   ///
-  void _onTopListPressed() {
-    if (_currentTab == ItineraryTabEnum.top) return;
+  void _onHistoryPressed() {
+    if (_currentTab == ItineraryTabEnum.history) return;
 
     setState(() {
-      _currentTab = ItineraryTabEnum.top;
+      _currentTab = ItineraryTabEnum.history;
       _searchController.clear();
     });
 
@@ -95,6 +97,94 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
     _establishmentCubit.run(query: query);
   }
 
+  /// Method to filter the itinerary list
+  ///
+  List<EstablishmentModel> _filteredItineraryList(
+    List<EstablishmentModel> estaList,
+  ) {
+    final establishmentList = <EstablishmentModel>[];
+
+    final itineraryList = <EstablishmentItineraryModel>[];
+    final profileItinerary = _profile?.estaItinerary ?? [];
+
+    if (profileItinerary.isNotEmpty) {
+      itineraryList
+        ..addAll(profileItinerary)
+        ..sort((a, b) {
+          final planDateA = a.planDate ?? '';
+          final planDateB = b.planDate ?? '';
+
+          return planDateA.compareTo(planDateB);
+        });
+    }
+
+    for (final itinerary in itineraryList) {
+      if (estaList.isNotEmpty) {
+        for (final esta in estaList) {
+          if (itinerary.establishmentId == esta.id) {
+            final planDate = itinerary.planDate;
+
+            if (planDate != null) {
+              final datePlan = DateFormat('MMMM d, yyyy').parse(planDate);
+              final dateNow = DateTime.now();
+              final dateDiff = datePlan.difference(dateNow);
+
+              if (!dateDiff.isNegative) {
+                establishmentList.add(esta);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return establishmentList;
+  }
+
+  /// Method to filter the itinerary list
+  ///
+  List<EstablishmentModel> _filteredHistoryList(
+    List<EstablishmentModel> estaList,
+  ) {
+    final establishmentList = <EstablishmentModel>[];
+
+    final itineraryList = <EstablishmentItineraryModel>[];
+    final profileItinerary = _profile?.estaItinerary ?? [];
+
+    if (profileItinerary.isNotEmpty) {
+      itineraryList
+        ..addAll(profileItinerary)
+        ..sort((a, b) {
+          final planDateA = a.planDate ?? '';
+          final planDateB = b.planDate ?? '';
+
+          return planDateA.compareTo(planDateB);
+        });
+    }
+
+    for (final itinerary in itineraryList) {
+      if (estaList.isNotEmpty) {
+        for (final esta in estaList) {
+          if (itinerary.establishmentId == esta.id) {
+            final planDate = itinerary.planDate;
+
+            if (planDate != null) {
+              final datePlan = DateFormat('MMMM d, yyyy').parse(planDate);
+              final dateNow = DateTime.now();
+              final dateDiff = datePlan.difference(dateNow);
+
+              if (dateDiff.isNegative) {
+                establishmentList.add(esta);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return establishmentList;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -106,7 +196,7 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
               _ItineraryTabWidget(
                 controller: _searchController,
                 onSearchChanged: _onSearchPressed,
-                onTopListPressed: _onTopListPressed,
+                onHistoryPressed: _onHistoryPressed,
                 onCreatedListPressed: _onCreatedListPressed,
                 currentTab: _currentTab,
               ),
@@ -129,7 +219,7 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
                       final list = estaState.value as List<EstablishmentModel>;
 
                       switch (_currentTab) {
-                        case ItineraryTabEnum.top:
+                        case ItineraryTabEnum.history:
                           //  Sort the list based on the rating
                           list.sort((a, b) {
                             final aRating = a.rating ?? 0;
@@ -138,11 +228,23 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
                             return bRating.compareTo(aRating);
                           });
 
+                          //  Filter the list if the establishment is
+                          //  already visited
+                          final historyList = _filteredHistoryList(list);
+
+                          //  Check if the list is empty
+                          if (historyList.isEmpty) {
+                            return const Center(
+                              child: Text('No travel history yet.'),
+                            );
+                          }
+
+                          //  Display the list of establishments
                           return ListView.separated(
                             padding: const EdgeInsets.all(16),
-                            itemCount: list.length,
+                            itemCount: historyList.length,
                             itemBuilder: (context, index) {
-                              final establishment = list[index];
+                              final establishment = historyList[index];
 
                               return EstablishmentCardWidget(
                                 establishment: establishment,
@@ -153,17 +255,19 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
                             },
                           );
                         case ItineraryTabEnum.created:
-                          //  Sort the list based on the rating
-                          final itineraryList = _profile?.estaItinerary ?? [];
-                          final estaList = list.where((element) {
-                            return itineraryList.any((itinerary) {
-                              return itinerary.establishmentId == element.id;
-                            });
-                          }).toList();
+                          final estaList = _filteredItineraryList(list);
 
+                          //  Check if the list is empty
+                          if (estaList.isEmpty) {
+                            return const Center(
+                              child: Text('No created list yet.'),
+                            );
+                          }
+
+                          //  Display the list of establishments
                           return ListView.separated(
                             padding: const EdgeInsets.all(16),
-                            itemCount: itineraryList.length,
+                            itemCount: estaList.length,
                             itemBuilder: (context, index) {
                               final establishment = estaList[index];
 
@@ -197,18 +301,18 @@ class _ItineraryTabWidget extends StatelessWidget {
   const _ItineraryTabWidget({
     required TextEditingController controller,
     required void Function(String?) onSearchChanged,
-    required void Function() onTopListPressed,
+    required void Function() onHistoryPressed,
     required void Function() onCreatedListPressed,
     required ItineraryTabEnum currentTab,
   })  : _controller = controller,
         _currentTab = currentTab,
         _onCreatedListPressed = onCreatedListPressed,
-        _onTopListPressed = onTopListPressed,
+        _onHistoryPressed = onHistoryPressed,
         _onSearchChanged = onSearchChanged;
 
   final TextEditingController _controller;
   final void Function(String?) _onSearchChanged;
-  final void Function() _onTopListPressed;
+  final void Function() _onHistoryPressed;
   final void Function() _onCreatedListPressed;
   final ItineraryTabEnum _currentTab;
 
@@ -238,10 +342,10 @@ class _ItineraryTabWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: _onTopListPressed,
+                    onPressed: _onCreatedListPressed,
                     child: Text(
-                      'Top List',
-                      style: _currentTab == ItineraryTabEnum.top
+                      'Created List',
+                      style: _currentTab == ItineraryTabEnum.created
                           ? textStyle20w700
                           : textStyle20w400,
                       textAlign: TextAlign.center,
@@ -257,10 +361,10 @@ class _ItineraryTabWidget extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton(
-                    onPressed: _onCreatedListPressed,
+                    onPressed: _onHistoryPressed,
                     child: Text(
-                      'Created List',
-                      style: _currentTab == ItineraryTabEnum.created
+                      'Travel History',
+                      style: _currentTab == ItineraryTabEnum.history
                           ? textStyle20w700
                           : textStyle20w400,
                       textAlign: TextAlign.center,

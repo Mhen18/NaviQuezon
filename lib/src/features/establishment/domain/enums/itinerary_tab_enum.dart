@@ -4,6 +4,6 @@ import 'package:naviquezon/src/features/establishment/presentation/screens/estab
 /// Enum for the tab of the [EstablishmentItineraryScreen]
 ///{@endtemplate}
 enum ItineraryTabEnum {
-  top,
+  history,
   created,
 }

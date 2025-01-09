@@ -79,22 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
     context.push(ForgotPasswordScreen.route);
   }
 
-  /// Getter for the icon path based on flavor.
-  ///
-  String? get _icon {
-    final role = context.read<AppRoleCubit>().state;
-
-    switch (role) {
-      case AppRoleEnum.superAdmin:
-      case AppRoleEnum.admin:
-        return Assets.images.icons.icAdmin.keyName;
-      case AppRoleEnum.owner:
-        return Assets.images.icons.icOwner.keyName;
-      case AppRoleEnum.user:
-        return null;
-    }
-  }
-
   /// Getter to validate the form.
   ///
   bool get _valid {
@@ -176,14 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        Opacity(
-                          opacity: _icon != null ? 1 : 0,
-                          child: Image.asset(
-                            _icon ?? Assets.images.icons.icUser.keyName,
-                            height: 80,
-                            width: 80,
-                          ),
-                        ),
+                        Assets.images.logo.logoNavi.image(),
                         Column(
                           children: [
                             RoundedTextField(

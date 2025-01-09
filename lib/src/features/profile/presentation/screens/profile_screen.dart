@@ -12,7 +12,6 @@ import 'package:naviquezon/src/core/widgets/containers/profile_image_container.d
 import 'package:naviquezon/src/features/authentication/splash/presentation/screens/splash_screen.dart';
 import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_like_screen.dart';
 import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_reviews_screen.dart';
-import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_visited_screen.dart';
 import 'package:naviquezon/src/features/profile/application/blocs/profile_get_cubit.dart';
 import 'package:naviquezon/src/features/profile/domain/models/profile_model.dart';
 
@@ -68,12 +67,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ///
   void _onMyReviewsPressed() {
     context.push(EstablishmentReviewsScreen.route);
-  }
-
-  /// Method to handle the my visited button pressed.
-  ///
-  void _onMyVisitedPressed() {
-    context.push(EstablishmentVisitedScreen.route);
   }
 
   /// Method to handle the edit profile button pressed.
@@ -153,7 +146,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: _ProfileInfo(
                             onMyLikesPressed: _onMyLikesPressed,
                             onMyReviewsPressed: _onMyReviewsPressed,
-                            onMyVisitedPressed: _onMyVisitedPressed,
                             onEditProfilePressed: _onEditProfilePressed,
                             onEditPasswordPressed: _onEditPasswordPressed,
                             onLogoutPressed: _onLogoutPressed,
@@ -189,7 +181,6 @@ class _ProfileInfo extends StatelessWidget {
   const _ProfileInfo({
     required void Function() onMyLikesPressed,
     required void Function() onMyReviewsPressed,
-    required void Function() onMyVisitedPressed,
     required void Function() onEditProfilePressed,
     required void Function() onEditPasswordPressed,
     required void Function() onLogoutPressed,
@@ -197,14 +188,12 @@ class _ProfileInfo extends StatelessWidget {
   })  : _profile = profile,
         _onMyLikesPressed = onMyLikesPressed,
         _onMyReviewsPressed = onMyReviewsPressed,
-        _onMyVisitedPressed = onMyVisitedPressed,
         _onEditProfilePressed = onEditProfilePressed,
         _onEditPasswordPressed = onEditPasswordPressed,
         _onLogoutPressed = onLogoutPressed;
 
   final void Function() _onMyLikesPressed;
   final void Function() _onMyReviewsPressed;
-  final void Function() _onMyVisitedPressed;
   final void Function() _onEditProfilePressed;
   final void Function() _onEditPasswordPressed;
   final void Function() _onLogoutPressed;
@@ -307,12 +296,6 @@ class _ProfileInfo extends StatelessWidget {
                 onPressed: _onMyReviewsPressed,
                 label: 'My Reviews',
                 icon: Icons.reviews,
-              ),
-              const Gap(4),
-              _ProfileButton(
-                onPressed: _onMyVisitedPressed,
-                label: 'My Visited',
-                icon: Icons.check_circle,
               ),
               const Gap(4),
               _ProfileButton(

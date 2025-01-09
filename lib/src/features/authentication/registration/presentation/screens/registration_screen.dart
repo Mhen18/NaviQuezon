@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
+import 'package:naviquezon/src/core/blocs/app_role_cubit.dart';
 import 'package:naviquezon/src/core/blocs/municipality_list_get_cubit.dart';
 import 'package:naviquezon/src/core/themes/assets.gen.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
@@ -19,6 +20,7 @@ import 'package:naviquezon/src/core/widgets/dropdowns/municipality_dropdown.dart
 import 'package:naviquezon/src/core/widgets/scaffolds/background_scaffold.dart';
 import 'package:naviquezon/src/core/widgets/snack_bars/app_snack_bar.dart';
 import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
+import 'package:naviquezon/src/features/authentication/login/presentation/screens/login_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/application/blocs/fetch_province_list_cubit.dart';
 import 'package:naviquezon/src/features/authentication/registration/application/blocs/fetch_region_list_cubit.dart';
 import 'package:naviquezon/src/features/authentication/registration/application/blocs/push_registration_cubit.dart';
@@ -27,6 +29,9 @@ import 'package:naviquezon/src/features/authentication/registration/domain/model
 import 'package:naviquezon/src/features/authentication/registration/domain/models/region_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/registration_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/presentation/screens/registration_validation_screen.dart';
+import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_discover_screen.dart';
+import 'package:naviquezon/src/features/profile/application/blocs/profile_get_cubit.dart';
+import 'package:naviquezon/src/features/profile/domain/models/profile_model.dart';
 import 'package:naviquezon/src/features/profile/presentation/screens/terms_and_conditions.dart';
 
 ///{@template RegistrationScreen}
@@ -298,7 +303,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             AppSnackBar.error(context).show(failure.message);
           }
 
-          if (registrationState is CubitStateSuccess) {
+          if (registrationState is CubitStateSuccess<ProfileModel?>) {
             //  Close the dialog.
             LoadingDialog.hide(context);
 
@@ -317,6 +322,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             } else {
               //  Show the success message.
               AppSnackBar.success(context).show('Registration successful.');
+
+              //  Get the profile from the state.
+              final profile = registrationState.value;
+
+              if (profile != null) {
+                final profileRole = AppRoleEnum.fromString(profile.role);
+
+                //  Emit the role.
+                context.read<AppRoleCubit>().emitRole(profileRole);
+
+                //  Emit the profile
+                context.read<ProfileGetCubit>().emitProfile(profile);
+
+                //  Check the role.
+                switch (profileRole) {
+                  case AppRoleEnum.user:
+                    //  Navigate to the dashboard screen.
+                    context.go(EstablishmentDiscoverScreen.route);
+                  case AppRoleEnum.superAdmin:
+                  case AppRoleEnum.admin:
+                  case AppRoleEnum.owner:
+                    //  Navigate to the login screen.
+                    context.go(LoginScreen.route);
+                }
+              }
             }
           }
         },
