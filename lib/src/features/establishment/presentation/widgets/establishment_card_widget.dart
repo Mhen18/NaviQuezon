@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/themes/styles/color_style.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
@@ -57,6 +58,26 @@ class _EstablishmentCardWidgetState extends State<EstablishmentCardWidget> {
       return profileState.value;
     }
     return null;
+  }
+
+  /// Getter for the plan date of added establishment.
+  ///
+  String get _planDate {
+    if (widget._isCreate) {
+      if (_profile != null) {
+        final establishmentItinerary =
+            _profile!.estaItinerary?.firstWhere((element) {
+          return element.establishmentId == _establishment.id;
+        });
+
+        final planDate = establishmentItinerary?.planDate ??
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+
+        return planDate;
+      }
+    }
+
+    return '';
   }
 
   /// Getter for the date of added establishment.
@@ -135,6 +156,19 @@ class _EstablishmentCardWidgetState extends State<EstablishmentCardWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  spacing:8,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _planDate,
+                        style: textStyle12w600,
+                      ),
+                    ),
+
+                  ],
+                ),
+                const Gap(8),
                 Text(
                   widget._establishment.name,
                   maxLines: 2,

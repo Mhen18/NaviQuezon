@@ -19,16 +19,18 @@ class EstablishmentItineraryModel with _$EstablishmentItineraryModel {
     required String establishmentId,
     required num createdDate,
     required num updatedDate,
+    String? planDate,
   }) = _EstablishmentItineraryModel;
-
 
   @JsonSerializable(
     fieldRename: FieldRename.snake,
     explicitToJson: true,
   )
+
   ///{@macro EstablishmentItineraryModel.add}
   const factory EstablishmentItineraryModel.add({
     required String establishmentId,
+    required String planDate,
     Map<String, dynamic>? createdDate,
     Map<String, dynamic>? updatedDate,
   }) = _EstablishmentItineraryAddModel;

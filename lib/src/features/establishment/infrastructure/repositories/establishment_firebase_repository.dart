@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
 import 'package:naviquezon/src/core/utils/keys/database_keys.dart';
@@ -749,9 +750,12 @@ class EstablishmentFirebaseRepository {
 
       //  Get the itinerary from the establishment
       final itineraries = profile.estaItinerary ?? [];
+      final planDate = itinerary.planDate ??
+          DateFormat('MMMM dd, yyyy').format(DateTime.now());
 
       final newItinerary = EstablishmentItineraryModel.add(
         establishmentId: establishment.id,
+        planDate: planDate,
         createdDate: ServerValue.timestamp,
         updatedDate: ServerValue.timestamp,
       );
