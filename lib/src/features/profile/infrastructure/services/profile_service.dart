@@ -33,7 +33,7 @@ class ProfileService {
 
       //  Return the profile.
       return Right(profile);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -60,7 +60,7 @@ class ProfileService {
 
       //  Return the profile.
       return Right(newProfile);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -93,7 +93,7 @@ class ProfileService {
       );
 
       return request;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

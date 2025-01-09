@@ -19,7 +19,7 @@ extension NumExtension on num {
     try {
       final value = f.format(this);
       return value;
-    } catch (e) {
+    } on Exception catch (e) {
       printError(e, title: 'withComma');
     }
 

@@ -23,7 +23,7 @@ class VerificationService {
 
       //  Return the profile list
       return Right(list);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -47,7 +47,7 @@ class VerificationService {
 
       //  Return the success
       return Right(isApproved);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

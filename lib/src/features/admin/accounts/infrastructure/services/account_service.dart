@@ -25,7 +25,7 @@ class AccountService {
 
       //  Return the admin account list
       return Right(accountList);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(DefaultFailure(message: e.toString()));
     }
   }
@@ -73,7 +73,7 @@ class AccountService {
           );
         },
       );
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(DefaultFailure(message: e.toString()));
     }
   }
@@ -88,7 +88,7 @@ class AccountService {
       await AccountFirebaseRepository.deleteAccountAdmin(id);
 
       return const Right(null);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(DefaultFailure(message: e.toString()));
     }
   }

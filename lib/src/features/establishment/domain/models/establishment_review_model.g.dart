@@ -23,26 +23,17 @@ _$EstablishmentReviewModelImpl _$$EstablishmentReviewModelImplFromJson(
     );
 
 Map<String, dynamic> _$$EstablishmentReviewModelImplToJson(
-    _$EstablishmentReviewModelImpl instance) {
-  final val = <String, dynamic>{
-    'user_id': instance.userId,
-    'rate': instance.rate,
-    'created_date': instance.createdDate,
-    'updated_date': instance.updatedDate,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('user_name', instance.userName);
-  writeNotNull('comment', instance.comment);
-  writeNotNull('room', instance.room);
-  writeNotNull('cleanliness', instance.cleanliness);
-  writeNotNull('breakfast', instance.breakfast);
-  writeNotNull('service', instance.service);
-  writeNotNull('bathroom', instance.bathroom);
-  return val;
-}
+        _$EstablishmentReviewModelImpl instance) =>
+    <String, dynamic>{
+      'user_id': instance.userId,
+      'rate': instance.rate,
+      'created_date': instance.createdDate,
+      'updated_date': instance.updatedDate,
+      if (instance.userName case final value?) 'user_name': value,
+      if (instance.comment case final value?) 'comment': value,
+      if (instance.room case final value?) 'room': value,
+      if (instance.cleanliness case final value?) 'cleanliness': value,
+      if (instance.breakfast case final value?) 'breakfast': value,
+      if (instance.service case final value?) 'service': value,
+      if (instance.bathroom case final value?) 'bathroom': value,
+    };

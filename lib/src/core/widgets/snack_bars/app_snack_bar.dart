@@ -105,7 +105,7 @@ class AppSnackBar {
 
       //  Show the snackBar.
       ScaffoldMessenger.of(_context).showSnackBar(snackBar);
-    } catch (e) {
+    } on Exception catch (_) {
       //  If showing snackBar failed, show toast instead.
       Fluttertoast.cancel();
       Fluttertoast.showToast(

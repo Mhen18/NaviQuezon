@@ -38,7 +38,7 @@ class LoginService {
           return Right(profile);
         },
       );
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
       return const Left(DefaultFailure());

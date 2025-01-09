@@ -18,7 +18,7 @@ class FaqService {
 
       //  Return the faq repository result.
       return faq;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -45,7 +45,7 @@ class FaqService {
 
       //  Return the success result
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -63,7 +63,7 @@ class FaqService {
       final request = await FaqFirebaseRepository.deleteFaq(faqId: faqId);
 
       return request;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

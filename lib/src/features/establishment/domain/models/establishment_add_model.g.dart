@@ -31,28 +31,19 @@ _$EstablishmentAddModelImpl _$$EstablishmentAddModelImplFromJson(
     );
 
 Map<String, dynamic> _$$EstablishmentAddModelImplToJson(
-    _$EstablishmentAddModelImpl instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-    'description': instance.description,
-    'address': instance.address,
-    'number': instance.contactNumber,
-    'categories': instance.categories,
-    'latitude': instance.latitude,
-    'longitude': instance.longitude,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('owner_id', instance.ownerId);
-  writeNotNull(
-      'amenities', instance.amenities?.map((e) => e.toJson()).toList());
-  writeNotNull('image_url', instance.imageUrl);
-  writeNotNull('schedule', instance.schedule);
-  writeNotNull('is_open', instance.isOpen);
-  return val;
-}
+        _$EstablishmentAddModelImpl instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'description': instance.description,
+      'address': instance.address,
+      'number': instance.contactNumber,
+      'categories': instance.categories,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      if (instance.ownerId case final value?) 'owner_id': value,
+      if (instance.amenities?.map((e) => e.toJson()).toList() case final value?)
+        'amenities': value,
+      if (instance.imageUrl case final value?) 'image_url': value,
+      if (instance.schedule case final value?) 'schedule': value,
+      if (instance.isOpen case final value?) 'is_open': value,
+    };

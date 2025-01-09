@@ -7,8 +7,7 @@ import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/scaffolds/background_scaffold.dart';
 import 'package:naviquezon/src/features/authentication/login/presentation/screens/login_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/presentation/screens/registration_screen.dart';
-
-import '../../../../profile/presentation/screens/terms_and_conditions.dart';
+import 'package:naviquezon/src/features/profile/presentation/screens/terms_and_conditions.dart';
 
 ///{@template SplashScreen}
 /// Screen that display the initial page of the app.

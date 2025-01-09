@@ -1,4 +1,3 @@
-import 'package:country_list/country_list.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/blocs/app_role_cubit.dart';
 import 'package:naviquezon/src/core/blocs/municipality_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/province_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/region_list_get_cubit.dart';
 import 'package:naviquezon/src/core/themes/assets.gen.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/gender_enums.dart';
@@ -16,13 +17,14 @@ import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
 import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/dialogs/loading_dialog.dart';
 import 'package:naviquezon/src/core/widgets/dropdowns/border_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/country_dropdown.dart';
 import 'package:naviquezon/src/core/widgets/dropdowns/municipality_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/province_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/region_dropdown.dart';
 import 'package:naviquezon/src/core/widgets/scaffolds/background_scaffold.dart';
 import 'package:naviquezon/src/core/widgets/snack_bars/app_snack_bar.dart';
 import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
 import 'package:naviquezon/src/features/authentication/login/presentation/screens/login_screen.dart';
-import 'package:naviquezon/src/features/authentication/registration/application/blocs/fetch_province_list_cubit.dart';
-import 'package:naviquezon/src/features/authentication/registration/application/blocs/fetch_region_list_cubit.dart';
 import 'package:naviquezon/src/features/authentication/registration/application/blocs/push_registration_cubit.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/municipality_model.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/province_model.dart';
@@ -50,8 +52,8 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _registrationCubit = PushRegistrationCubit();
 
-  final _regionCubit = FetchRegionListCubit();
-  final _provinceCubit = FetchProvinceListCubit();
+  final _regionCubit = RegionListGetCubit();
+  final _provinceCubit = ProvinceListGetCubit();
   final _municipalityCubit = MunicipalityListGetCubit();
 
   final _fNameController = TextEditingController();
@@ -452,8 +454,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 role: _role.value,
                                 country: _country.value,
                                 onCountryChanged: _onCountryChanged,
+                                regionCubit: _regionCubit,
                                 region: _region.value,
                                 onRegionChanged: _onRegionChanged,
+                                provinceCubit: _provinceCubit,
                                 province: _province.value,
                                 onProvinceChanged: _onProvinceChanged,
                                 municipality: _municipality.value,
@@ -490,8 +494,10 @@ class _AddressDropdown extends StatelessWidget {
     required AppRoleEnum role,
     required String? country,
     required void Function(String?) onCountryChanged,
+    required RegionListGetCubit regionCubit,
     required RegionModel? region,
     required void Function(RegionModel?) onRegionChanged,
+    required ProvinceListGetCubit provinceCubit,
     required ProvinceModel? province,
     required void Function(ProvinceModel?) onProvinceChanged,
     required MunicipalityListGetCubit municipalityCubit,
@@ -501,8 +507,10 @@ class _AddressDropdown extends StatelessWidget {
         _onMunicipalityChanged = onMunicipalityChanged,
         _municipality = municipality,
         _municipalityCubit = municipalityCubit,
+        _provinceCubit = provinceCubit,
         _onProvinceChanged = onProvinceChanged,
         _province = province,
+        _regionCubit = regionCubit,
         _onRegionChanged = onRegionChanged,
         _region = region,
         _onCountryChanged = onCountryChanged,
@@ -511,8 +519,10 @@ class _AddressDropdown extends StatelessWidget {
   final AppRoleEnum _role;
   final String? _country;
   final void Function(String?) _onCountryChanged;
+  final RegionListGetCubit _regionCubit;
   final RegionModel? _region;
   final void Function(RegionModel?) _onRegionChanged;
+  final ProvinceListGetCubit _provinceCubit;
   final ProvinceModel? _province;
   final void Function(ProvinceModel?) _onProvinceChanged;
   final MunicipalityListGetCubit _municipalityCubit;
@@ -550,23 +560,28 @@ class _AddressDropdown extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: BorderDropdown<String>(
-                  value: _country,
-                  items: Countries.list.map((country) {
-                    return DropdownMenuItem(
-                      value: country.name,
-                      child: Text(country.name),
-                    );
-                  }).toList(),
-                  hint: 'Select Country',
-                  onChanged: _onCountryChanged,
-                  label: 'Country',
+                child: CountryDropdown(
+                  country: _country,
+                  onCountryChanged: _onCountryChanged,
                 ),
+                // child: BorderDropdown<String>(
+                //   value: _country,
+                //   items: Countries.list.map((country) {
+                //     return DropdownMenuItem(
+                //       value: country.name,
+                //       child: Text(country.name),
+                //     );
+                //   }).toList(),
+                //   hint: 'Select Country',
+                //   onChanged: _onCountryChanged,
+                //   label: 'Country',
+                // ),
               ),
               if (_country == sPhilippines) ...[
                 const Gap(12),
                 Expanded(
-                  child: _RegionDropdown(
+                  child: RegionDropdown(
+                    bloc: _regionCubit,
                     onChanged: _onRegionChanged,
                     value: _region,
                   ),
@@ -583,7 +598,8 @@ class _AddressDropdown extends StatelessWidget {
             children: [
               if (_role == AppRoleEnum.user) ...[
                 Expanded(
-                  child: _ProvinceDropdown(
+                  child: ProvinceDropdown(
+                    bloc: _provinceCubit,
                     onChanged: _onProvinceChanged,
                     value: _province,
                   ),
@@ -678,100 +694,100 @@ class _GenderDropdown extends StatelessWidget {
     );
   }
 }
-
-///{@template _RegionDropdown}
-/// Dropdown for the list of regions.
-///{@endtemplate}
-class _RegionDropdown extends StatelessWidget {
-  ///{@macro _RegionDropdown}
-  const _RegionDropdown({
-    required this.onChanged,
-    required this.value,
-  });
-
-  final void Function(RegionModel?) onChanged;
-  final RegionModel? value;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<FetchRegionListCubit, CubitState>(
-      builder: (context, regionState) {
-        if (regionState is CubitStateSuccess<List<RegionModel>>) {
-          final regionList = regionState.value;
-
-          return BorderDropdown<RegionModel>(
-            onChanged: onChanged,
-            value: value,
-            items: regionList.map((e) {
-              return DropdownMenuItem(
-                value: e,
-                child: Text(
-                  e.name,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            }).toList(),
-            label: 'Region',
-            hint: 'Select Region',
-          );
-        }
-
-        return BorderDropdown<RegionModel>(
-          hint: 'Select Region',
-          onChanged: onChanged,
-          label: 'Region',
-        );
-      },
-    );
-  }
-}
-
-///{@template _ProvinceDropdown}
-/// Dropdown for the list of regions.
-///{@endtemplate}
-class _ProvinceDropdown extends StatelessWidget {
-  ///{@macro _ProvinceDropdown}
-  const _ProvinceDropdown({
-    required this.onChanged,
-    required this.value,
-  });
-
-  final void Function(ProvinceModel?) onChanged;
-  final ProvinceModel? value;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<FetchProvinceListCubit, CubitState>(
-      builder: (context, provinceState) {
-        if (provinceState is CubitStateSuccess<List<ProvinceModel>>) {
-          final provinceList = provinceState.value;
-
-          return BorderDropdown<ProvinceModel>(
-            onChanged: onChanged,
-            value: value,
-            items: provinceList.map((e) {
-              return DropdownMenuItem(
-                value: e,
-                child: Text(
-                  e.name,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            }).toList(),
-            label: 'Province',
-            hint: 'Select Province',
-          );
-        }
-
-        return BorderDropdown<ProvinceModel>(
-          hint: 'Select Province',
-          onChanged: onChanged,
-          label: 'Province',
-        );
-      },
-    );
-  }
-}
+//
+// ///{@template _RegionDropdown}
+// /// Dropdown for the list of regions.
+// ///{@endtemplate}
+// class _RegionDropdown extends StatelessWidget {
+//   ///{@macro _RegionDropdown}
+//   const _RegionDropdown({
+//     required this.onChanged,
+//     required this.value,
+//   });
+//
+//   final void Function(RegionModel?) onChanged;
+//   final RegionModel? value;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<FetchRegionListCubit, CubitState>(
+//       builder: (context, regionState) {
+//         if (regionState is CubitStateSuccess<List<RegionModel>>) {
+//           final regionList = regionState.value;
+//
+//           return BorderDropdown<RegionModel>(
+//             onChanged: onChanged,
+//             value: value,
+//             items: regionList.map((e) {
+//               return DropdownMenuItem(
+//                 value: e,
+//                 child: Text(
+//                   e.name,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//               );
+//             }).toList(),
+//             label: 'Region',
+//             hint: 'Select Region',
+//           );
+//         }
+//
+//         return BorderDropdown<RegionModel>(
+//           hint: 'Select Region',
+//           onChanged: onChanged,
+//           label: 'Region',
+//         );
+//       },
+//     );
+//   }
+// }
+//
+// ///{@template _ProvinceDropdown}
+// /// Dropdown for the list of regions.
+// ///{@endtemplate}
+// class _ProvinceDropdown extends StatelessWidget {
+//   ///{@macro _ProvinceDropdown}
+//   const _ProvinceDropdown({
+//     required this.onChanged,
+//     required this.value,
+//   });
+//
+//   final void Function(ProvinceModel?) onChanged;
+//   final ProvinceModel? value;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<FetchProvinceListCubit, CubitState>(
+//       builder: (context, provinceState) {
+//         if (provinceState is CubitStateSuccess<List<ProvinceModel>>) {
+//           final provinceList = provinceState.value;
+//
+//           return BorderDropdown<ProvinceModel>(
+//             onChanged: onChanged,
+//             value: value,
+//             items: provinceList.map((e) {
+//               return DropdownMenuItem(
+//                 value: e,
+//                 child: Text(
+//                   e.name,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//               );
+//             }).toList(),
+//             label: 'Province',
+//             hint: 'Select Province',
+//           );
+//         }
+//
+//         return BorderDropdown<ProvinceModel>(
+//           hint: 'Select Province',
+//           onChanged: onChanged,
+//           label: 'Province',
+//         );
+//       },
+//     );
+//   }
+// }
 
 ///{@template _RegistrationTermsAndConditionDialog}
 /// Custom dialog for the terms and condition.

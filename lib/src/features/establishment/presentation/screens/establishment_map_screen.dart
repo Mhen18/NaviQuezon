@@ -100,7 +100,7 @@ class _ScreenState extends State<EstablishmentMapScreen> {
 
       //  Return the image marker.
       return imageMarker;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -133,7 +133,7 @@ class _ScreenState extends State<EstablishmentMapScreen> {
       );
 
       return byteData?.buffer.asUint8List();
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
