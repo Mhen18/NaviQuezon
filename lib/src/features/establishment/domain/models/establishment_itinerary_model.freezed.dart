@@ -36,12 +36,15 @@ mixin _$EstablishmentItineraryModel {
   String get establishmentId => throw _privateConstructorUsedError;
   Object? get createdDate => throw _privateConstructorUsedError;
   Object? get updatedDate => throw _privateConstructorUsedError;
+  String? get planDate => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)
         $default, {
     required TResult Function(
             String establishmentId,
+            String planDate,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
         add,
@@ -49,18 +52,26 @@ mixin _$EstablishmentItineraryModel {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult? Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult? Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult? Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
     required TResult orElse(),
@@ -104,7 +115,7 @@ abstract class $EstablishmentItineraryModelCopyWith<$Res> {
       _$EstablishmentItineraryModelCopyWithImpl<$Res,
           EstablishmentItineraryModel>;
   @useResult
-  $Res call({String establishmentId});
+  $Res call({String establishmentId, String planDate});
 }
 
 /// @nodoc
@@ -124,11 +135,16 @@ class _$EstablishmentItineraryModelCopyWithImpl<$Res,
   @override
   $Res call({
     Object? establishmentId = null,
+    Object? planDate = null,
   }) {
     return _then(_value.copyWith(
       establishmentId: null == establishmentId
           ? _value.establishmentId
           : establishmentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      planDate: null == planDate
+          ? _value.planDate!
+          : planDate // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -143,7 +159,11 @@ abstract class _$$EstablishmentItineraryModelImplCopyWith<$Res>
       __$$EstablishmentItineraryModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String establishmentId, num createdDate, num updatedDate});
+  $Res call(
+      {String establishmentId,
+      num createdDate,
+      num updatedDate,
+      String? planDate});
 }
 
 /// @nodoc
@@ -164,6 +184,7 @@ class __$$EstablishmentItineraryModelImplCopyWithImpl<$Res>
     Object? establishmentId = null,
     Object? createdDate = null,
     Object? updatedDate = null,
+    Object? planDate = freezed,
   }) {
     return _then(_$EstablishmentItineraryModelImpl(
       establishmentId: null == establishmentId
@@ -178,6 +199,10 @@ class __$$EstablishmentItineraryModelImplCopyWithImpl<$Res>
           ? _value.updatedDate
           : updatedDate // ignore: cast_nullable_to_non_nullable
               as num,
+      planDate: freezed == planDate
+          ? _value.planDate
+          : planDate // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -191,6 +216,7 @@ class _$EstablishmentItineraryModelImpl
       {required this.establishmentId,
       required this.createdDate,
       required this.updatedDate,
+      this.planDate,
       final String? $type})
       : $type = $type ?? 'default';
 
@@ -204,13 +230,15 @@ class _$EstablishmentItineraryModelImpl
   final num createdDate;
   @override
   final num updatedDate;
+  @override
+  final String? planDate;
 
   @JsonKey(name: 'runtimeType')
   final String $type;
 
   @override
   String toString() {
-    return 'EstablishmentItineraryModel(establishmentId: $establishmentId, createdDate: $createdDate, updatedDate: $updatedDate)';
+    return 'EstablishmentItineraryModel(establishmentId: $establishmentId, createdDate: $createdDate, updatedDate: $updatedDate, planDate: $planDate)';
   }
 
   @override
@@ -223,13 +251,15 @@ class _$EstablishmentItineraryModelImpl
             (identical(other.createdDate, createdDate) ||
                 other.createdDate == createdDate) &&
             (identical(other.updatedDate, updatedDate) ||
-                other.updatedDate == updatedDate));
+                other.updatedDate == updatedDate) &&
+            (identical(other.planDate, planDate) ||
+                other.planDate == planDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, establishmentId, createdDate, updatedDate);
+  int get hashCode => Object.hash(
+      runtimeType, establishmentId, createdDate, updatedDate, planDate);
 
   /// Create a copy of EstablishmentItineraryModel
   /// with the given fields replaced by the non-null parameter values.
@@ -243,41 +273,51 @@ class _$EstablishmentItineraryModelImpl
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)
         $default, {
     required TResult Function(
             String establishmentId,
+            String planDate,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
         add,
   }) {
-    return $default(establishmentId, createdDate, updatedDate);
+    return $default(establishmentId, createdDate, updatedDate, planDate);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult? Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult? Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult? Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
   }) {
-    return $default?.call(establishmentId, createdDate, updatedDate);
+    return $default?.call(establishmentId, createdDate, updatedDate, planDate);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
     required TResult orElse(),
   }) {
     if ($default != null) {
-      return $default(establishmentId, createdDate, updatedDate);
+      return $default(establishmentId, createdDate, updatedDate, planDate);
     }
     return orElse();
   }
@@ -326,7 +366,8 @@ abstract class _EstablishmentItineraryModel
   const factory _EstablishmentItineraryModel(
       {required final String establishmentId,
       required final num createdDate,
-      required final num updatedDate}) = _$EstablishmentItineraryModelImpl;
+      required final num updatedDate,
+      final String? planDate}) = _$EstablishmentItineraryModelImpl;
 
   factory _EstablishmentItineraryModel.fromJson(Map<String, dynamic> json) =
       _$EstablishmentItineraryModelImpl.fromJson;
@@ -337,6 +378,8 @@ abstract class _EstablishmentItineraryModel
   num get createdDate;
   @override
   num get updatedDate;
+  @override
+  String? get planDate;
 
   /// Create a copy of EstablishmentItineraryModel
   /// with the given fields replaced by the non-null parameter values.
@@ -357,6 +400,7 @@ abstract class _$$EstablishmentItineraryAddModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String establishmentId,
+      String planDate,
       Map<String, dynamic>? createdDate,
       Map<String, dynamic>? updatedDate});
 }
@@ -377,6 +421,7 @@ class __$$EstablishmentItineraryAddModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? establishmentId = null,
+    Object? planDate = null,
     Object? createdDate = freezed,
     Object? updatedDate = freezed,
   }) {
@@ -384,6 +429,10 @@ class __$$EstablishmentItineraryAddModelImplCopyWithImpl<$Res>
       establishmentId: null == establishmentId
           ? _value.establishmentId
           : establishmentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      planDate: null == planDate
+          ? _value.planDate
+          : planDate // ignore: cast_nullable_to_non_nullable
               as String,
       createdDate: freezed == createdDate
           ? _value._createdDate
@@ -404,6 +453,7 @@ class _$EstablishmentItineraryAddModelImpl
     implements _EstablishmentItineraryAddModel {
   const _$EstablishmentItineraryAddModelImpl(
       {required this.establishmentId,
+      required this.planDate,
       final Map<String, dynamic>? createdDate,
       final Map<String, dynamic>? updatedDate,
       final String? $type})
@@ -417,6 +467,8 @@ class _$EstablishmentItineraryAddModelImpl
 
   @override
   final String establishmentId;
+  @override
+  final String planDate;
   final Map<String, dynamic>? _createdDate;
   @override
   Map<String, dynamic>? get createdDate {
@@ -442,7 +494,7 @@ class _$EstablishmentItineraryAddModelImpl
 
   @override
   String toString() {
-    return 'EstablishmentItineraryModel.add(establishmentId: $establishmentId, createdDate: $createdDate, updatedDate: $updatedDate)';
+    return 'EstablishmentItineraryModel.add(establishmentId: $establishmentId, planDate: $planDate, createdDate: $createdDate, updatedDate: $updatedDate)';
   }
 
   @override
@@ -452,6 +504,8 @@ class _$EstablishmentItineraryAddModelImpl
             other is _$EstablishmentItineraryAddModelImpl &&
             (identical(other.establishmentId, establishmentId) ||
                 other.establishmentId == establishmentId) &&
+            (identical(other.planDate, planDate) ||
+                other.planDate == planDate) &&
             const DeepCollectionEquality()
                 .equals(other._createdDate, _createdDate) &&
             const DeepCollectionEquality()
@@ -463,6 +517,7 @@ class _$EstablishmentItineraryAddModelImpl
   int get hashCode => Object.hash(
       runtimeType,
       establishmentId,
+      planDate,
       const DeepCollectionEquality().hash(_createdDate),
       const DeepCollectionEquality().hash(_updatedDate));
 
@@ -479,41 +534,51 @@ class _$EstablishmentItineraryAddModelImpl
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)
         $default, {
     required TResult Function(
             String establishmentId,
+            String planDate,
             Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)
         add,
   }) {
-    return add(establishmentId, createdDate, updatedDate);
+    return add(establishmentId, planDate, createdDate, updatedDate);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult? Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult? Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult? Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
   }) {
-    return add?.call(establishmentId, createdDate, updatedDate);
+    return add?.call(establishmentId, planDate, createdDate, updatedDate);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String establishmentId, num createdDate, num updatedDate)?
+    TResult Function(String establishmentId, num createdDate, num updatedDate,
+            String? planDate)?
         $default, {
-    TResult Function(String establishmentId, Map<String, dynamic>? createdDate,
+    TResult Function(
+            String establishmentId,
+            String planDate,
+            Map<String, dynamic>? createdDate,
             Map<String, dynamic>? updatedDate)?
         add,
     required TResult orElse(),
   }) {
     if (add != null) {
-      return add(establishmentId, createdDate, updatedDate);
+      return add(establishmentId, planDate, createdDate, updatedDate);
     }
     return orElse();
   }
@@ -561,6 +626,7 @@ abstract class _EstablishmentItineraryAddModel
     implements EstablishmentItineraryModel {
   const factory _EstablishmentItineraryAddModel(
           {required final String establishmentId,
+          required final String planDate,
           final Map<String, dynamic>? createdDate,
           final Map<String, dynamic>? updatedDate}) =
       _$EstablishmentItineraryAddModelImpl;
@@ -570,6 +636,8 @@ abstract class _EstablishmentItineraryAddModel
 
   @override
   String get establishmentId;
+  @override
+  String get planDate;
   @override
   Map<String, dynamic>? get createdDate;
   @override

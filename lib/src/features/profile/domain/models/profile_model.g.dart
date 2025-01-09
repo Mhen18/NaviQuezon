@@ -27,32 +27,23 @@ _$ProfileModelImpl _$$ProfileModelImplFromJson(Map<String, dynamic> json) =>
       isApproved: json['is_approved'] as bool?,
     );
 
-Map<String, dynamic> _$$ProfileModelImplToJson(_$ProfileModelImpl instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'first_name': instance.firstName,
-    'last_name': instance.lastName,
-    'email': instance.email,
-    'phone': instance.phone,
-    'created_date': instance.createdDate,
-    'updated_date': instance.updatedDate,
-    'role': instance.role,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('position', instance.position);
-  writeNotNull('age', instance.age);
-  writeNotNull('gender', instance.gender);
-  writeNotNull('country', instance.country);
-  writeNotNull('region', instance.region);
-  writeNotNull('province', instance.province);
-  writeNotNull('municipality', instance.municipality);
-  writeNotNull('image', instance.image);
-  writeNotNull('is_approved', instance.isApproved);
-  return val;
-}
+Map<String, dynamic> _$$ProfileModelImplToJson(_$ProfileModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
+      'email': instance.email,
+      'phone': instance.phone,
+      'created_date': instance.createdDate,
+      'updated_date': instance.updatedDate,
+      'role': instance.role,
+      if (instance.position case final value?) 'position': value,
+      if (instance.age case final value?) 'age': value,
+      if (instance.gender case final value?) 'gender': value,
+      if (instance.country case final value?) 'country': value,
+      if (instance.region case final value?) 'region': value,
+      if (instance.province case final value?) 'province': value,
+      if (instance.municipality case final value?) 'municipality': value,
+      if (instance.image case final value?) 'image': value,
+      if (instance.isApproved case final value?) 'is_approved': value,
+    };

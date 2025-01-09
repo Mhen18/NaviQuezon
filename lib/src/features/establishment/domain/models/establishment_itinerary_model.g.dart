@@ -12,6 +12,7 @@ _$EstablishmentItineraryModelImpl _$$EstablishmentItineraryModelImplFromJson(
       establishmentId: json['establishment_id'] as String,
       createdDate: json['created_date'] as num,
       updatedDate: json['updated_date'] as num,
+      planDate: json['plan_date'] as String?,
       $type: json['runtimeType'] as String?,
     );
 
@@ -21,6 +22,7 @@ Map<String, dynamic> _$$EstablishmentItineraryModelImplToJson(
       'establishment_id': instance.establishmentId,
       'created_date': instance.createdDate,
       'updated_date': instance.updatedDate,
+      'plan_date': instance.planDate,
       'runtimeType': instance.$type,
     };
 
@@ -28,6 +30,7 @@ _$EstablishmentItineraryAddModelImpl
     _$$EstablishmentItineraryAddModelImplFromJson(Map<String, dynamic> json) =>
         _$EstablishmentItineraryAddModelImpl(
           establishmentId: json['establishment_id'] as String,
+          planDate: json['plan_date'] as String,
           createdDate: json['created_date'] as Map<String, dynamic>?,
           updatedDate: json['updated_date'] as Map<String, dynamic>?,
           $type: json['runtimeType'] as String?,
@@ -37,6 +40,7 @@ Map<String, dynamic> _$$EstablishmentItineraryAddModelImplToJson(
         _$EstablishmentItineraryAddModelImpl instance) =>
     <String, dynamic>{
       'establishment_id': instance.establishmentId,
+      'plan_date': instance.planDate,
       'created_date': instance.createdDate,
       'updated_date': instance.updatedDate,
       'runtimeType': instance.$type,
