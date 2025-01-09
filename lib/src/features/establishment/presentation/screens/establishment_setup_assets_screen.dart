@@ -19,6 +19,9 @@ import 'package:naviquezon/src/features/establishment/application/blocs/establis
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_model.dart';
 import 'package:video_player/video_player.dart';
 
+/// Constant for the maximum number of images allowed.
+const _maxImages = 8;
+
 ///{@template EstablishmentSetupAssetsScreen}
 /// Screen for setup the list of establishment's assets.
 ///{@endtemplate}
@@ -159,7 +162,7 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
                   }
                 } else {
                   setState(() {
-                    _pathVideo=value.path;
+                    _pathVideo = value.path;
                   });
                   _videoCubit.run(value.path, PathEnum.file);
                 }
@@ -194,7 +197,7 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
                   setState(() {
                     _pathImages[index] = value.path;
                   });
-                } else if (_pathImages.length < 4) {
+                } else if (_pathImages.length < _maxImages) {
                   setState(() {
                     _pathImages.add(value.path);
                   });
@@ -211,7 +214,7 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
                   setState(() {
                     _pathImages[index] = value.path;
                   });
-                } else if (_pathImages.length < 4) {
+                } else if (_pathImages.length < _maxImages) {
                   setState(() {
                     _pathImages.add(value.path);
                   });
@@ -252,7 +255,6 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
               context.pop(true);
             }
           },
-
           child: Scrollbar(
             thumbVisibility: true,
             thickness: 8,
@@ -327,8 +329,9 @@ class _ScreenState extends State<EstablishmentSetupAssetsScreen> {
                           const Gap(16),
                           _AssetImageListWidget(
                             onAddPressed: _onAddImageListPressed,
-                            onEditPressed: (i) =>
-                                _onAddImageListPressed(index: i),
+                            onEditPressed: (i) => _onAddImageListPressed(
+                              index: i,
+                            ),
                             pathList: _pathImages,
                           ),
                         ],
@@ -434,6 +437,12 @@ class _AssetImageListWidget extends StatelessWidget {
   final void Function(int) _onEditPressed;
   final List<String> _pathList;
 
+  /// Getter for the image length.
+  ///
+  int get _imageLength {
+    return _pathList.length < _maxImages ? _pathList.length + 1 : _maxImages;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -441,12 +450,12 @@ class _AssetImageListWidget extends StatelessWidget {
       children: [
         const _SetupAssetLabel(
           label: 'Images',
-          subLabel: ' (max 4)',
+          subLabel: ' (max $_maxImages)',
         ),
         if (_pathList.isNotEmpty) ...[
           GridView.builder(
             shrinkWrap: true,
-            itemCount: _pathList.length < 4 ? _pathList.length + 1 : 4,
+            itemCount: _imageLength,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -454,7 +463,7 @@ class _AssetImageListWidget extends StatelessWidget {
               crossAxisSpacing: 8,
             ),
             itemBuilder: (context, index) {
-              if (_pathList.length < 4) {
+              if (_pathList.length < _maxImages) {
                 if (index == _pathList.length) {
                   return Center(
                     child: _AssetCircularButton(
