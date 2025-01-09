@@ -23,5 +23,3 @@ class ReportRecordModel with _$ReportRecordModel {
     required int totalTotal,
   }) = _ReportRecordModel;
 }
-
-
