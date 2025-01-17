@@ -203,6 +203,22 @@ class LocationService {
   ///
   Future<Either<Failure, Position>> getCurrentLocation() async {
     try {
+      //  Check the location permission.
+      final permission = await Geolocator.checkPermission();
+
+      //  Check if the permission is denied or denied forever.
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        //  Request the location permission.
+        final status = await Geolocator.requestPermission();
+
+        //  Check if the request status is denied or denied forever.
+        if (status == LocationPermission.denied ||
+            status == LocationPermission.deniedForever) {
+          return const Left(LocationPermissionFailure());
+        }
+      }
+
       //  Get the current location.
       final location = await Geolocator.getCurrentPosition();
 
