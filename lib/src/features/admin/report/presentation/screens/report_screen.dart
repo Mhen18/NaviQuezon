@@ -1,3 +1,4 @@
+import 'package:country_list/country_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -7,9 +8,12 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/blocs/app_role_cubit.dart';
 import 'package:naviquezon/src/core/blocs/municipality_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/province_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/region_list_get_cubit.dart';
+import 'package:naviquezon/src/core/themes/styles/color_style.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
-import 'package:naviquezon/src/core/utils/extensions/num_extensions.dart';
+import 'package:naviquezon/src/core/utils/constants/enums/tourist_type.dart';
 import 'package:naviquezon/src/core/utils/keys/route_keys.dart';
 import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
 import 'package:naviquezon/src/core/widgets/app_bars/default_app_bar.dart';
@@ -18,6 +22,8 @@ import 'package:naviquezon/src/core/widgets/containers/box_label_container.dart'
 import 'package:naviquezon/src/core/widgets/containers/error_state_container.dart';
 import 'package:naviquezon/src/core/widgets/dialogs/loading_dialog.dart';
 import 'package:naviquezon/src/core/widgets/dropdowns/municipality_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/province_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/region_dropdown.dart';
 import 'package:naviquezon/src/core/widgets/snack_bars/app_snack_bar.dart';
 import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
 import 'package:naviquezon/src/features/admin/accounts/presentation/screens/account_manage_screen.dart';
@@ -25,6 +31,8 @@ import 'package:naviquezon/src/features/admin/report/application/blocs/report_do
 import 'package:naviquezon/src/features/admin/report/presentation/widgets/admin_drawer.dart';
 import 'package:naviquezon/src/features/admin/verification/presentation/verification_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/municipality_model.dart';
+import 'package:naviquezon/src/features/authentication/registration/domain/models/province_model.dart';
+import 'package:naviquezon/src/features/authentication/registration/domain/models/region_model.dart';
 import 'package:naviquezon/src/features/authentication/splash/presentation/screens/splash_screen.dart';
 import 'package:naviquezon/src/features/establishment/application/blocs/establishment_list_get_cubit.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_model.dart';
@@ -52,6 +60,15 @@ class _ReportScreenState extends State<ReportScreen> {
   final _estaCubit = EstablishmentListGetCubit();
   final _reportCubit = ReportDownloadCubit();
 
+  final _regionCubit = RegionListGetCubit();
+  final _provinceCubit = ProvinceListGetCubit();
+  final _municipalityCubit = MunicipalityListGetCubit();
+
+  RegionModel? _filterRegion;
+  ProvinceModel? _filterProvince;
+
+  TouristType _tourist = TouristType.local;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   DateTime _filterDateTime = DateTime.now();
@@ -77,6 +94,7 @@ class _ReportScreenState extends State<ReportScreen> {
   ///
   void _initBlocs() {
     _estaCubit.run();
+    _regionCubit.run();
   }
 
   /// Method to initialize the municipality.
@@ -104,10 +122,15 @@ class _ReportScreenState extends State<ReportScreen> {
     _scaffoldKey.currentState?.openEndDrawer();
   }
 
-  void _onConfirmPressed(DateTime date, String municipality) {
+  void _onConfirmPressed(
+    DateTime date,
+    String municipality,
+    TouristType tourist,
+  ) {
     setState(() {
       _filterDateTime = date;
       _municipality = municipality;
+      _tourist = tourist;
     });
   }
 
@@ -123,6 +146,7 @@ class _ReportScreenState extends State<ReportScreen> {
           onConfirmPressed: _onConfirmPressed,
           initialDate: _filterDateTime,
           municipality: _municipality,
+          tourist: _tourist,
         );
       },
     );
@@ -176,6 +200,27 @@ class _ReportScreenState extends State<ReportScreen> {
     _reportCubit.run(
       params: reportDownload,
     );
+  }
+
+  /// Method to handle the region changed.
+  ///
+  void _onRegionChanged(RegionModel? region) {
+    setState(() {
+      _filterRegion = region;
+      _filterProvince = null;
+    });
+
+    _provinceCubit.run(region?.code ?? '');
+  }
+
+  /// Method to handle the province changed.
+  ///
+  void _onProvinceChanged(ProvinceModel? province) {
+    setState(() {
+      _filterProvince = province;
+    });
+
+    _municipalityCubit.run(province?.code ?? '');
   }
 
   @override
@@ -259,62 +304,154 @@ class _ReportScreenState extends State<ReportScreen> {
                       final filteredList = list.where((element) {
                         return element.municipality == _municipality;
                       }).toList();
+                      final length = filteredList.length;
 
-                      return Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 8,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Tourism Attraction Visitor Record',
-                                    style: textStyle16w700,
+                      return SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_tourist == TouristType.local) ...[
+                                Column(
+                                  spacing: 8,
+                                  children: [
+                                    RegionDropdown(
+                                      bloc: _regionCubit,
+                                      onChanged: _onRegionChanged,
+                                      value: _filterRegion,
+                                    ),
+                                    ProvinceDropdown(
+                                      bloc: _provinceCubit,
+                                      onChanged: _onProvinceChanged,
+                                      value: _filterProvince,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              Row(
+                                spacing: 8,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Tourism Attraction Visitor Record',
+                                      style: textStyle16w700,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _onDownloadPressed(
+                                      filteredList,
+                                    ),
+                                    icon: const Icon(
+                                      Icons.download,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Gap(8),
+                              if (_role == AppRoleEnum.superAdmin) ...[
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      const TextSpan(text: 'Municipality: '),
+                                      TextSpan(
+                                        text: _municipality,
+                                        style: textStyle16w600,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                IconButton(
-                                  onPressed: () => _onDownloadPressed(
-                                    filteredList,
+                                const Gap(8),
+                              ],
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(text: 'Month/Year: '),
+                                    TextSpan(
+                                      text: _monthYear,
+                                      style: textStyle16w600,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Gap(16),
+                              if (_tourist == TouristType.local) ...[
+                                if (_filterRegion == null) ...[
+                                  const Gap(24),
+                                  Center(
+                                    child: Text(
+                                      'Select a Region',
+                                      style: textStyle16w400,
+                                    ),
                                   ),
-                                  icon: const Icon(
-                                    Icons.download,
+                                ] else if (_filterProvince == null) ...[
+                                  const Gap(24),
+                                  Center(
+                                    child: Text(
+                                      'Select a Province',
+                                      style: textStyle16w400,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Column(
+                                      spacing: 16,
+                                      children: List.generate(length, (index) {
+                                        final esta = filteredList[index];
+
+                                        return _ReportMunicipalityForm(
+                                          cubit: _municipalityCubit,
+                                          esta: esta,
+                                          reportList: esta.report ?? [],
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                              if (_tourist == TouristType.foreign) ...[
+                                // SizedBox(
+                                //   width: MediaQuery.of(context).size.width,
+                                //   child: SingleChildScrollView(
+                                //     scrollDirection: Axis.horizontal,
+                                //     child: SizedBox(
+                                //       width: MediaQuery.of(context).size.width,
+                                //       child: ListView.builder(
+                                //         physics: const NeverScrollableScrollPhysics(), // Disable ListView's scrolling
+                                //         shrinkWrap: true,
+                                //         itemCount: length,
+                                //         itemBuilder: (context, index) {
+                                //           final esta = filteredList[index];
+                                //           return _ReportForeignForm(
+                                //             esta: esta,
+                                //             reportList: esta.report ?? [],
+                                //           );
+                                //         },
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
+
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Column(
+                                    spacing: 16,
+                                    children: List.generate(length, (index) {
+                                      final esta = filteredList[index];
+
+                                      return RepaintBoundary(
+                                        child: _ReportForeignForm(
+                                          esta: esta,
+                                          reportList: esta.report ?? [],
+                                        ),
+                                      );
+                                    }),
                                   ),
                                 ),
                               ],
-                            ),
-                            const Gap(8),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(text: 'Month/Year: '),
-                                  TextSpan(
-                                    text: _monthYear,
-                                    style: textStyle16w600,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: 'Name of the Municipality: ',
-                                  ),
-                                  TextSpan(
-                                    text: _municipality,
-                                    style: textStyle16w600,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Gap(16),
-                            _ReportVisitorRecord(
-                              establishmentList: filteredList,
-                              dateTime: _filterDateTime,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     }
@@ -331,366 +468,24 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 }
 
-///{@template ReportVisitorRecord}
-/// Widget to display the visitor record in the report screen
-///{@endtemplate}
-class _ReportVisitorRecord extends StatelessWidget {
-  ///{@macro ReportVisitorRecord}
-  const _ReportVisitorRecord({
-    required List<EstablishmentModel> establishmentList,
-    required DateTime dateTime,
-  })  : _establishmentList = establishmentList,
-        _dateTime = dateTime;
-
-  final List<EstablishmentModel> _establishmentList;
-  final DateTime _dateTime;
-
-  List<EstablishmentReportModel> _reportList(
-    EstablishmentModel establishment,
-  ) {
-    final reportList = <EstablishmentReportModel>[];
-
-    final reports = establishment.report ?? [];
-    if (reports.isNotEmpty) {
-      for (final report in reports) {
-        final reportDate = report.date.toUnixTime(isSeconds: true);
-        final reportMonth = reportDate.month;
-
-        if (_dateTime.month == reportMonth) {
-          reportList.add(report);
-        }
-      }
-    }
-
-    return reportList;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_establishmentList.isEmpty) {
-      return Expanded(
-        child: Center(
-          child: Text(
-            'No establishment record found in this municipality',
-            style: textStyle16w400,
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(width: 1.5),
-        ),
-        child: Column(
-          children: [
-            const _RecordLabelContainer(),
-            Column(
-              children: _establishmentList.map((establishment) {
-                return _RecordContainer(
-                  reportList: _reportList(establishment),
-                  name: establishment.name,
-                  municipality: establishment.municipality ?? 'Sariaya',
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-///{@template _RecordLabelContainer}
-/// Widget to display the record label container
-///{@endtemplate}
-class _RecordLabelContainer extends StatelessWidget {
-  ///{@macro _RecordLabelContainer}
-  const _RecordLabelContainer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        BoxLabelContainer(
-          name: 'Name',
-          height: 35 * 2,
-          width: MediaQuery.of(context).size.width * 0.5,
-          textAlign: TextAlign.center,
-          style: textStyle14w600,
-          backgroundColor: Colors.yellow,
-        ),
-        const _RecordCountWidget.label(
-          'This Municipality',
-        ),
-        const _RecordCountWidget.label(
-          'Other Municipalities',
-        ),
-        const _RecordCountWidget.label(
-          'Other Province',
-        ),
-        const _RecordCountWidget.label(
-          'Foreign Country Residence',
-        ),
-        const _RecordCountWidget.label(
-          'Total Number of Visitors',
-        ),
-      ],
-    );
-  }
-}
-
-///{@template _RecordContainer}
-/// Widget to display the record container
-///{@endtemplate}
-class _RecordContainer extends StatelessWidget {
-  ///{@macro _RecordContainer}
-  const _RecordContainer({
-    required List<EstablishmentReportModel> reportList,
-    required String name,
-    required String municipality,
-  })  : _reportList = reportList,
-        _name = name,
-        _municipality = municipality;
-
-  final List<EstablishmentReportModel> _reportList;
-  final String _name;
-  final String _municipality;
-
-  /// Getter for the total number of visitors from this municipality.
-  ///
-  (num, num, num) get _thisMunicipality {
-    num total = 0;
-    num female = 0;
-    num male = 0;
-
-    if (_reportList.isNotEmpty) {
-      for (final report in _reportList) {
-        final reportMunicipality = report.municipality;
-
-        if (reportMunicipality == _municipality) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
-        }
-      }
-    }
-
-    return (total, female, male);
-  }
-
-  (num, num, num) get _othersMunicipality {
-    num total = 0;
-    num female = 0;
-    num male = 0;
-
-    if (_reportList.isNotEmpty) {
-      for (final report in _reportList) {
-        if (report.country == sPhilippines) {
-          if (report.province == sQuezonProvince) {
-            if (report.municipality != _municipality) {
-              total += report.total;
-              female += report.female;
-              male += report.male;
-            }
-          }
-        }
-      }
-    }
-
-    return (total, female, male);
-  }
-
-  (num, num, num) get _othersProvinces {
-    num total = 0;
-    num female = 0;
-    num male = 0;
-
-    if (_reportList.isNotEmpty) {
-      for (final report in _reportList) {
-        if (report.country == sPhilippines) {
-          if (report.province != sQuezonProvince) {
-            total += report.total;
-            female += report.female;
-            male += report.male;
-          }
-        }
-      }
-    }
-
-    return (total, female, male);
-  }
-
-  (num, num, num) get _othersCountries {
-    num total = 0;
-    num female = 0;
-    num male = 0;
-
-    if (_reportList.isNotEmpty) {
-      for (final report in _reportList) {
-        if (report.country != null) {
-          if (report.country != sPhilippines) {
-            total += report.total;
-            female += report.female;
-            male += report.male;
-          }
-        }
-      }
-    }
-
-    return (total, female, male);
-  }
-
-  (num, num, num) get _total {
-    num total = 0;
-    num female = 0;
-    num male = 0;
-
-    if (_reportList.isNotEmpty) {
-      for (final report in _reportList) {
-        if (report.country != null) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
-        }
-      }
-    }
-
-    return (total, female, male);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        BoxLabelContainer(
-          name: _name,
-          width: MediaQuery.of(context).size.width * 0.5,
-          style: textStyle14w600,
-        ),
-        //  This Municipality
-        _RecordCountWidget(
-          total: _thisMunicipality.$1.toString(),
-          female: _thisMunicipality.$2.toString(),
-          male: _thisMunicipality.$3.toString(),
-        ),
-        //  Other Municipalities
-        _RecordCountWidget(
-          total: _othersMunicipality.$1.toString(),
-          female: _othersMunicipality.$2.toString(),
-          male: _othersMunicipality.$3.toString(),
-        ),
-        //  Other Province
-        _RecordCountWidget(
-          total: _othersProvinces.$1.toString(),
-          female: _othersProvinces.$2.toString(),
-          male: _othersProvinces.$3.toString(),
-        ),
-        //  Foreign Country Residence
-        _RecordCountWidget(
-          total: _othersCountries.$1.toString(),
-          female: _othersCountries.$2.toString(),
-          male: _othersCountries.$3.toString(),
-        ),
-        // Total
-        _RecordCountWidget(
-          total: _total.$1.toString(),
-          female: _total.$2.toString(),
-          male: _total.$3.toString(),
-        ),
-      ],
-    );
-  }
-}
-
-class _RecordCountWidget extends StatelessWidget {
-  const _RecordCountWidget({
-    required String total,
-    required String male,
-    required String female,
-  })  : _total = total,
-        _male = male,
-        _female = female,
-        _label = null;
-
-  const _RecordCountWidget.label(
-    String label,
-  )   : _total = 'Total',
-        _male = 'Male',
-        _female = 'Female',
-        _label = label;
-
-  final String _total;
-  final String _male;
-  final String _female;
-  final String? _label;
-
-  Color? get _color {
-    if (_label == null) {
-      return null;
-    }
-
-    return Colors.yellow;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (_label != null) ...[
-          BoxLabelContainer(
-            name: _label,
-            width: MediaQuery.of(context).size.width * 0.6,
-            textAlign: TextAlign.center,
-            style: textStyle14w600,
-            backgroundColor: _color,
-          ),
-        ],
-        Row(
-          children: [
-            BoxLabelContainer(
-              name: _male,
-              width: MediaQuery.of(context).size.width * 0.2,
-              textAlign: TextAlign.center,
-              backgroundColor: _color,
-            ),
-            BoxLabelContainer(
-              name: _female,
-              width: MediaQuery.of(context).size.width * 0.2,
-              textAlign: TextAlign.center,
-              backgroundColor: _color,
-            ),
-            BoxLabelContainer(
-              name: _total,
-              width: MediaQuery.of(context).size.width * 0.2,
-              textAlign: TextAlign.center,
-              backgroundColor: _color,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 ///{@template _ReportFilterBottomSheet}
 /// Custom widget for the report filter bottom sheet
 ///{@endtemplate}
 class _ReportFilterBottomSheet extends StatefulWidget {
   const _ReportFilterBottomSheet({
-    required void Function(DateTime, String) onConfirmPressed,
+    required void Function(DateTime, String, TouristType) onConfirmPressed,
     required DateTime initialDate,
     required String municipality,
+    required TouristType tourist,
   })  : _onConfirmPressed = onConfirmPressed,
         _municipality = municipality,
-        _initialDate = initialDate;
+        _initialDate = initialDate,
+        _tourist = tourist;
 
-  final void Function(DateTime, String) _onConfirmPressed;
+  final void Function(DateTime, String, TouristType) _onConfirmPressed;
   final DateTime _initialDate;
   final String _municipality;
+  final TouristType _tourist;
 
   @override
   State<_ReportFilterBottomSheet> createState() => _BottomSheetState();
@@ -701,19 +496,21 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
   final _dateController = TextEditingController();
   final _municipality = ValueNotifier<MunicipalityModel?>(null);
 
+  late TouristType _tourist;
+
   /// Getter for the role.
   AppRoleEnum get _role {
     return context.read<AppRoleCubit>().state;
   }
 
-  /// Getter if the form is valid.
-  bool get _valid {
-    final municipality = _municipality.value?.name;
-    final validMunicipality = municipality != widget._municipality;
-    final validDate = _dateFormat(widget._initialDate) != _dateController.text;
-
-    return validMunicipality || validDate;
-  }
+  // /// Getter if the form is valid.
+  // bool get _valid {
+  //   final municipality = _municipality.value?.name;
+  //   final validMunicipality = municipality != widget._municipality;
+  //   final validDate = _dateFormat(widget._initialDate) != _dateController.text;
+  //
+  //   return validMunicipality || validDate;
+  // }
 
   /// String method for the date format.
   ///
@@ -727,6 +524,7 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
 
     _municipalityCubit.run(sQuezonProvinceCode);
     _dateController.text = _dateFormat(widget._initialDate);
+    _tourist = widget._tourist;
   }
 
   /// Method to handle the select date pressed.
@@ -751,7 +549,7 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
     final date = DateFormat('MMMM yyyy').parse(_dateController.text);
     final municipality = _municipality.value?.name ?? widget._municipality;
 
-    widget._onConfirmPressed(date, municipality);
+    widget._onConfirmPressed(date, municipality, _tourist);
     context.pop();
   }
 
@@ -800,7 +598,24 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  RoundedButton(
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    borderColor: Colors.black,
+                    labelColor: Colors.black,
+                    onPressed: () {
+                      setState(() {
+                        _tourist = _tourist == TouristType.local
+                            ? TouristType.foreign
+                            : TouristType.local;
+                      });
+                    },
+                    label: _tourist == TouristType.local
+                        ? 'Foreign Country Residence'
+                        : 'Local Residence',
+                  ),
                   if (_role == AppRoleEnum.superAdmin) ...[
+                    const Gap(16),
                     MunicipalityDropdown(
                       onChanged: (value) {
                         setState(() {
@@ -822,7 +637,7 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
                   ),
                   const Gap(16),
                   RoundedButton(
-                    onPressed: _valid ? _onConfirmPressed : null,
+                    onPressed: _onConfirmPressed,
                     label: 'Confirm',
                   ),
                 ],
@@ -833,6 +648,383 @@ class _BottomSheetState extends State<_ReportFilterBottomSheet> {
           },
         ),
       ),
+    );
+  }
+}
+
+///{@template _ReportMunicipalityForm}
+/// Custom widget for the report municipality form
+///{@endtemplate}
+class _ReportMunicipalityForm extends StatelessWidget {
+  ///{@macro _ReportMunicipalityForm}
+  const _ReportMunicipalityForm({
+    required EstablishmentModel esta,
+    required List<EstablishmentReportModel> reportList,
+    required MunicipalityListGetCubit cubit,
+  })  : _esta = esta,
+        _reportList = reportList,
+        _cubit = cubit;
+
+  final EstablishmentModel _esta;
+  final List<EstablishmentReportModel> _reportList;
+  final MunicipalityListGetCubit _cubit;
+
+  /// Getter for the box height.
+  ///
+  double get _boxHeight {
+    return 40;
+  }
+
+  /// Num method to get the total female tourist.
+  ///
+  num _female(MunicipalityModel municipality) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        if (report.municipality == municipality.name) {
+          total = total + report.female;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  /// Num method to get the total male tourist.
+  ///
+  num _male(MunicipalityModel municipality) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        if (report.municipality == municipality.name) {
+          total = total + report.male;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  /// Num method to get the total tourist.
+  ///
+  num _total(MunicipalityModel municipality) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        if (report.municipality == municipality.name) {
+          total = total + report.total;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final municipalityWidth = MediaQuery.sizeOf(context).width * 0.5;
+
+    return BlocBuilder<MunicipalityListGetCubit, CubitState>(
+      bloc: _cubit,
+      builder: (context, municipalityState) {
+        if (municipalityState is CubitStateSuccess<List<MunicipalityModel>>) {
+          final municipalityList = municipalityState.value;
+          return Row(
+            children: [
+              BoxLabelContainer(
+                name: _esta.name,
+                width: municipalityWidth,
+                textAlign: TextAlign.center,
+                backgroundColor: color1363DF,
+                height: _boxHeight * (municipalityList.length + 2),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoxLabelContainer(
+                    name: 'Local',
+                    width: municipalityWidth,
+                    textAlign: TextAlign.center,
+                    backgroundColor: color1363DF,
+                    height: _boxHeight,
+                  ),
+                  BoxLabelContainer(
+                    name: 'Municipality',
+                    width: municipalityWidth,
+                    textAlign: TextAlign.center,
+                    backgroundColor: color1363DF,
+                    height: _boxHeight,
+                  ),
+                  ...municipalityList.map((municipality) {
+                    return BoxLabelContainer(
+                      name: municipality.name,
+                      width: municipalityWidth,
+                      textAlign: TextAlign.center,
+                      height: _boxHeight,
+                    );
+                  }),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoxLabelContainer(
+                    name: 'Tourist Arrival',
+                    width: municipalityWidth,
+                    textAlign: TextAlign.center,
+                    backgroundColor: color1363DF,
+                    height: _boxHeight,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BoxLabelContainer(
+                        name: 'F',
+                        width: municipalityWidth / 3,
+                        textAlign: TextAlign.center,
+                        backgroundColor: color1363DF,
+                        height: _boxHeight,
+                      ),
+                      BoxLabelContainer(
+                        name: 'M',
+                        width: municipalityWidth / 3,
+                        textAlign: TextAlign.center,
+                        backgroundColor: color1363DF,
+                        height: _boxHeight,
+                      ),
+                      BoxLabelContainer(
+                        name: 'Total',
+                        width: municipalityWidth / 3,
+                        textAlign: TextAlign.center,
+                        backgroundColor: color1363DF,
+                        height: _boxHeight,
+                      ),
+                    ],
+                  ),
+                  ...municipalityList.map((municipality) {
+                    final female = _female(municipality);
+                    final male = _male(municipality);
+                    final total = _total(municipality);
+
+                    return Row(
+                      children: [
+                        BoxLabelContainer(
+                          name: female.toString(),
+                          width: municipalityWidth / 3,
+                          textAlign: TextAlign.center,
+                          height: _boxHeight,
+                        ),
+                        BoxLabelContainer(
+                          name: male.toString(),
+                          width: municipalityWidth / 3,
+                          textAlign: TextAlign.center,
+                          height: _boxHeight,
+                        ),
+                        BoxLabelContainer(
+                          name: total.toString(),
+                          width: municipalityWidth / 3,
+                          textAlign: TextAlign.center,
+                          height: _boxHeight,
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return const SizedBox();
+      },
+    );
+  }
+}
+
+///{@template _ReportForeignForm}
+/// Custom widget for the report foreign form
+///{@endtemplate}
+class _ReportForeignForm extends StatelessWidget {
+  ///{@macro _ReportForeignForm}
+  const _ReportForeignForm({
+    required EstablishmentModel esta,
+    required List<EstablishmentReportModel> reportList,
+  })  : _esta = esta,
+        _reportList = reportList;
+
+  final EstablishmentModel _esta;
+  final List<EstablishmentReportModel> _reportList;
+
+  /// Getter for the box height.
+  ///
+  double get _boxHeight {
+    return 40;
+  }
+
+  /// Num method to get the total female tourist.
+  ///
+  num _female(Country country) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        final reportCountry = report.country ?? sPhilippines;
+
+        if (reportCountry == country.name) {
+          total = total + report.female;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  /// Num method to get the total male tourist.
+  ///
+  num _male(Country country) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        final reportCountry = report.country ?? sPhilippines;
+
+        if (reportCountry == country.name) {
+          total = total + report.male;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  /// Num method to get the total tourist.
+  ///
+  num _total(Country country) {
+    num total = 0;
+
+    if (_reportList.isNotEmpty) {
+      for (final report in _reportList) {
+        final reportCountry = report.country ?? sPhilippines;
+
+        if (reportCountry == country.name) {
+          total = total + report.total;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final municipalityWidth = MediaQuery.sizeOf(context).width * 0.5;
+
+    return Row(
+      children: [
+        BoxLabelContainer(
+          name: _esta.name,
+          width: municipalityWidth,
+          textAlign: TextAlign.center,
+          backgroundColor: color1363DF,
+          height: _boxHeight * (Countries.list.length + 2),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BoxLabelContainer(
+              name: 'Foreign',
+              width: municipalityWidth,
+              textAlign: TextAlign.center,
+              backgroundColor: color1363DF,
+              height: _boxHeight,
+            ),
+            BoxLabelContainer(
+              name: 'Country',
+              width: municipalityWidth,
+              textAlign: TextAlign.center,
+              backgroundColor: color1363DF,
+              height: _boxHeight,
+            ),
+            ...Countries.list.map((country) {
+              return BoxLabelContainer(
+                name: country.name,
+                width: municipalityWidth,
+                textAlign: TextAlign.center,
+                height: _boxHeight,
+              );
+            }),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BoxLabelContainer(
+              name: 'Tourist Arrival',
+              width: municipalityWidth,
+              textAlign: TextAlign.center,
+              backgroundColor: color1363DF,
+              height: _boxHeight,
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BoxLabelContainer(
+                  name: 'F',
+                  width: municipalityWidth / 3,
+                  textAlign: TextAlign.center,
+                  backgroundColor: color1363DF,
+                  height: _boxHeight,
+                ),
+                BoxLabelContainer(
+                  name: 'M',
+                  width: municipalityWidth / 3,
+                  textAlign: TextAlign.center,
+                  backgroundColor: color1363DF,
+                  height: _boxHeight,
+                ),
+                BoxLabelContainer(
+                  name: 'Total',
+                  width: municipalityWidth / 3,
+                  textAlign: TextAlign.center,
+                  backgroundColor: color1363DF,
+                  height: _boxHeight,
+                ),
+              ],
+            ),
+            ...Countries.list.map((country) {
+              final female = _female(country);
+              final male = _male(country);
+              final total = _total(country);
+
+              return Row(
+                children: [
+                  BoxLabelContainer(
+                    name: female.toString(),
+                    width: municipalityWidth / 3,
+                    textAlign: TextAlign.center,
+                    height: _boxHeight,
+                  ),
+                  BoxLabelContainer(
+                    name: male.toString(),
+                    width: municipalityWidth / 3,
+                    textAlign: TextAlign.center,
+                    height: _boxHeight,
+                  ),
+                  BoxLabelContainer(
+                    name: total.toString(),
+                    width: municipalityWidth / 3,
+                    textAlign: TextAlign.center,
+                    height: _boxHeight,
+                  ),
+                ],
+              );
+            }),
+          ],
+        ),
+      ],
     );
   }
 }
