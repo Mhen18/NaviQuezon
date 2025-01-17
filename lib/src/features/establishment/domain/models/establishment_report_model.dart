@@ -17,7 +17,6 @@ class EstablishmentReportModel with _$EstablishmentReportModel {
     required num total,
     required num female,
     required num male,
-    String? userId,
     String? municipality,
     String? province,
     String? country,

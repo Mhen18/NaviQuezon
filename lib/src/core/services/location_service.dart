@@ -55,7 +55,7 @@ class LocationService {
       } else {
         return const Left(DefaultFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -97,7 +97,7 @@ class LocationService {
       } else {
         return const Left(DefaultFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -139,7 +139,7 @@ class LocationService {
       } else {
         return const Left(DefaultFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -166,7 +166,7 @@ class LocationService {
           //` If the permission is denied.
           return const Left(LocationPermissionFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(stackTrace);
 
       return const Left(DefaultFailure());
@@ -192,7 +192,7 @@ class LocationService {
           //` If the permission is denied.
           return const Left(LocationPermissionFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(stackTrace);
 
       return const Left(DefaultFailure());
@@ -203,11 +203,27 @@ class LocationService {
   ///
   Future<Either<Failure, Position>> getCurrentLocation() async {
     try {
+      //  Check the location permission.
+      final permission = await Geolocator.checkPermission();
+
+      //  Check if the permission is denied or denied forever.
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        //  Request the location permission.
+        final status = await Geolocator.requestPermission();
+
+        //  Check if the request status is denied or denied forever.
+        if (status == LocationPermission.denied ||
+            status == LocationPermission.deniedForever) {
+          return const Left(LocationPermissionFailure());
+        }
+      }
+
       //  Get the current location.
       final location = await Geolocator.getCurrentPosition();
 
       return Right(location);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(stackTrace);
 
       return const Left(DefaultFailure());

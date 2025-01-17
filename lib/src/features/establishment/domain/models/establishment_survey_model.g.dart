@@ -9,26 +9,32 @@ part of 'establishment_survey_model.dart';
 _$EstablishmentSurveyModelImpl _$$EstablishmentSurveyModelImplFromJson(
         Map<String, dynamic> json) =>
     _$EstablishmentSurveyModelImpl(
-      userId: json['user_id'] as String,
       date: json['date'] as num,
       total: json['total'] as num,
       female: json['female'] as num,
       male: json['male'] as num,
       createdDate: json['created_date'] as num,
       updatedDate: json['updated_date'] as num,
+      country: json['country'] as String? ?? sPhilippines,
+      region: json['region'] as String?,
+      province: json['province'] as String?,
+      municipality: json['municipality'] as String?,
       $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$EstablishmentSurveyModelImplToJson(
         _$EstablishmentSurveyModelImpl instance) =>
     <String, dynamic>{
-      'user_id': instance.userId,
       'date': instance.date,
       'total': instance.total,
       'female': instance.female,
       'male': instance.male,
       'created_date': instance.createdDate,
       'updated_date': instance.updatedDate,
+      'country': instance.country,
+      'region': instance.region,
+      'province': instance.province,
+      'municipality': instance.municipality,
       'runtimeType': instance.$type,
     };
 
@@ -38,7 +44,10 @@ _$EstablishmentSurveyAddModelImpl _$$EstablishmentSurveyAddModelImplFromJson(
       total: json['total'] as num,
       female: json['female'] as num,
       male: json['male'] as num,
-      userId: json['user_id'] as String?,
+      country: json['country'] as String,
+      region: json['region'] as String?,
+      province: json['province'] as String?,
+      municipality: json['municipality'] as String?,
       date: json['date'] as num?,
       createdDate: json['created_date'] as Map<String, dynamic>?,
       updatedDate: json['updated_date'] as Map<String, dynamic>?,
@@ -51,7 +60,10 @@ Map<String, dynamic> _$$EstablishmentSurveyAddModelImplToJson(
       'total': instance.total,
       'female': instance.female,
       'male': instance.male,
-      'user_id': instance.userId,
+      'country': instance.country,
+      'region': instance.region,
+      'province': instance.province,
+      'municipality': instance.municipality,
       'date': instance.date,
       'created_date': instance.createdDate,
       'updated_date': instance.updatedDate,

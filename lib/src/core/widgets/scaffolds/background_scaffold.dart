@@ -50,7 +50,7 @@ class BackgroundScaffold extends StatelessWidget {
   /// Getter for the foreground color.
   ///
   Color get _foregroundColor {
-    return foregroundColor ?? color4E4E4E.withOpacity(0.8);
+    return foregroundColor ?? color4E4E4E.withValues(alpha: 0.8);
   }
 
   @override

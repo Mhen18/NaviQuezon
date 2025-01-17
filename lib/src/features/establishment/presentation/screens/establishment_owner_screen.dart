@@ -1,18 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
+import 'package:naviquezon/src/core/blocs/municipality_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/province_list_get_cubit.dart';
+import 'package:naviquezon/src/core/blocs/region_list_get_cubit.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
+import 'package:naviquezon/src/core/utils/extensions/datetime_extensions.dart';
 import 'package:naviquezon/src/core/utils/keys/route_keys.dart';
+import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
+import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/core/widgets/app_bars/default_app_bar.dart';
 import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/dialogs/default_dialog.dart';
+import 'package:naviquezon/src/core/widgets/dialogs/loading_dialog.dart';
 import 'package:naviquezon/src/core/widgets/drawers/default_drawer/default_drawer.dart';
 import 'package:naviquezon/src/core/widgets/drawers/default_drawer/default_drawer_button.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/country_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/municipality_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/province_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/dropdowns/region_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/snack_bars/app_snack_bar.dart';
+import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
+import 'package:naviquezon/src/features/authentication/registration/domain/models/municipality_model.dart';
+import 'package:naviquezon/src/features/authentication/registration/domain/models/province_model.dart';
+import 'package:naviquezon/src/features/authentication/registration/domain/models/region_model.dart';
 import 'package:naviquezon/src/features/authentication/splash/presentation/screens/splash_screen.dart';
 import 'package:naviquezon/src/features/establishment/application/blocs/establishment_owner_get_cubit.dart';
+import 'package:naviquezon/src/features/establishment/application/blocs/establishment_survey_add_cubit.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_model.dart';
+import 'package:naviquezon/src/features/establishment/domain/models/establishment_survey_model.dart';
 import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_setup_amenity_screen.dart';
 import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_setup_assets_screen.dart';
 import 'package:naviquezon/src/features/establishment/presentation/screens/establishment_setup_screen.dart';
@@ -38,6 +57,7 @@ class _ScreenState extends State<EstablishmentOwnerScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _establishmentCubit = EstablishmentOwnerGetCubit();
+  final _surveyCubit = EstablishmentSurveyAddCubit();
 
   ///  Getter for the image height
   ///
@@ -190,10 +210,43 @@ class _ScreenState extends State<EstablishmentOwnerScreen> {
     context.push(ProfilePasswordEditScreen.route);
   }
 
+  /// Method to handle the survey button and show the bottom sheet.
+  ///
+  void _onSurveyPressed() {
+    showModalBottomSheet<_SurveyBottomSheet>(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      builder: (context) {
+        return _SurveyBottomSheet(
+          onSubmitPressed: _onSubmitSurveyPressed,
+        );
+      },
+    );
+  }
+
+  /// Method to handle the submit survey button.
+  ///
+  void _onSubmitSurveyPressed(
+    List<EstablishmentSurveyModel> surveys,
+  ) {
+    _surveyCubit.run(
+      surveys: surveys,
+      establishmentId: _establishment?.id ?? '',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => _establishmentCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => _establishmentCubit,
+        ),
+        BlocProvider(
+          create: (context) => _surveyCubit,
+        ),
+      ],
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -219,62 +272,115 @@ class _ScreenState extends State<EstablishmentOwnerScreen> {
             context.go(SplashScreen.route);
           },
         ),
-        body: BlocBuilder<EstablishmentOwnerGetCubit, CubitState>(
-          builder: (context, establishmentState) {
-            if (establishmentState is CubitStateLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+        body: BlocListener<EstablishmentSurveyAddCubit, CubitState>(
+          listener: (context, surveyState) {
+            if (surveyState is CubitStateLoading) {
+              //  Show the dialog.
+              LoadingDialog.show(context);
             }
 
-            if (establishmentState is CubitStateFailed) {
-              final failure = establishmentState.failure;
+            if (surveyState is CubitStateFailed) {
+              //  Close the dialog.
+              LoadingDialog.hide(context);
 
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(failure.message),
-                    const Gap(16),
-                    RoundedButton(
-                      onPressed: _establishmentCubit.run,
-                      label: 'Retry',
-                    ),
-                  ],
-                ),
-              );
+              //  Show the error message.
+              final failure = surveyState.failure;
+              AppSnackBar.error(context).show(failure.message);
             }
 
-            if (establishmentState is CubitStateSuccess<EstablishmentModel?>) {
-              final establishment = establishmentState.value;
+            if (surveyState is CubitStateSuccess) {
+              //  Close the dialog.
+              LoadingDialog.hide(context);
 
-              if (establishment == null) {
+              //  Show the success message.
+              AppSnackBar.success(context).show(
+                'Survey submitted successfully',
+              );
+            }
+          },
+          child: BlocBuilder<EstablishmentOwnerGetCubit, CubitState>(
+            builder: (context, establishmentState) {
+              if (establishmentState is CubitStateLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (establishmentState is CubitStateFailed) {
+                final failure = establishmentState.failure;
+
                 return Center(
-                  child: RoundedButton(
-                    onPressed: _onAddEstablishmentPressed,
-                    label: 'Add Establishment',
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(failure.message),
+                      const Gap(16),
+                      RoundedButton(
+                        onPressed: _establishmentCubit.run,
+                        label: 'Retry',
+                      ),
+                    ],
                   ),
                 );
               }
 
-              return Stack(
-                children: [
-                  DetailsImage(
-                    imageHeight: _imageHeight,
-                    images: establishment.images ?? [],
-                    video: establishment.video ?? '',
-                  ),
-                  EstablishmentDetailsInfo.owner(
-                    onEditInfoPressed: _onEditPressed,
-                    establishment: establishment,
-                    imageHeight: _imageHeight,
-                  ),
-                ],
-              );
-            }
+              if (establishmentState
+                  is CubitStateSuccess<EstablishmentModel?>) {
+                final establishment = establishmentState.value;
 
-            return const SizedBox();
-          },
+                if (establishment == null) {
+                  return Center(
+                    child: RoundedButton(
+                      onPressed: _onAddEstablishmentPressed,
+                      label: 'Add Establishment',
+                    ),
+                  );
+                }
+
+                return Stack(
+                  children: [
+                    DetailsImage(
+                      imageHeight: _imageHeight,
+                      images: establishment.images ?? [],
+                      video: establishment.video ?? '',
+                    ),
+                    EstablishmentDetailsInfo.owner(
+                      onEditInfoPressed: _onEditPressed,
+                      establishment: establishment,
+                      imageHeight: _imageHeight,
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.topEnd,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: kToolbarHeight / 2,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              tooltip: 'Survey',
+                              icon: const Icon(Icons.edit_note_sharp),
+                              onPressed: _onSurveyPressed,
+                            ),
+                            IconButton(
+                              tooltip: 'Profile',
+                              icon: const Icon(Icons.account_circle),
+                              onPressed: () {
+                                Scaffold.of(context).openEndDrawer();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
@@ -375,6 +481,420 @@ class _OwnerDrawer extends StatelessWidget {
           text: 'Logout',
         ),
       ],
+    );
+  }
+}
+
+///{@template _SurveyBottomSheet}
+/// Custom bottom sheet for the survey.
+///{@endtemplate}
+class _SurveyBottomSheet extends StatefulWidget {
+  ///{@macro _SurveyBottomSheet}
+  const _SurveyBottomSheet({
+    required void Function(List<EstablishmentSurveyModel>) onSubmitPressed,
+  }) : _onSubmitPressed = onSubmitPressed;
+
+  final void Function(List<EstablishmentSurveyModel>) _onSubmitPressed;
+
+  @override
+  State<_SurveyBottomSheet> createState() => _BottomSheetState();
+}
+
+class _BottomSheetState extends State<_SurveyBottomSheet> {
+  final _dateController = TextEditingController();
+  DateTime _dateTime = DateTime.now();
+  int _surveyCount = 1;
+  final List<EstablishmentSurveyModel> _surveys = [];
+  int _validCount = -1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _dateController.text = _dateTime.formatDate();
+  }
+
+  /// Method to show the date picker.
+  ///
+  Future<void> _showDatePicker() async {
+    final datePicker = await showDatePicker(
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      context: context,
+    );
+
+    if (datePicker != null) {
+      setState(() {
+        _dateController.text = datePicker.formatDate();
+        _dateTime = datePicker;
+      });
+    }
+  }
+
+  /// Method to handle the add pressed.
+  ///
+  void _onAddPressed() {
+    setState(() {
+      _surveyCount++;
+    });
+  }
+
+  void _onSubmitPressed() {
+    context.pop();
+    widget._onSubmitPressed(_surveys);
+  }
+
+  /// Method to handle the survey changed.
+  ///
+  void _onSurveyChanged(EstablishmentSurveyModel survey, int index) {
+    if (index < _surveys.length) {
+      _surveys[index] = survey;
+    } else {
+      _surveys.add(survey);
+    }
+
+    printDebug(_surveys);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              RoundedTextField(
+                controller: _dateController,
+                label: 'When did they visit?',
+                readOnly: true,
+                suffixIcon: IconButton(
+                  onPressed: _showDatePicker,
+                  icon: const Icon(Icons.calendar_today),
+                ),
+              ),
+              ...List.generate(_surveyCount, (index) {
+                return Column(
+                  children: [
+                    if (index > 0) const Divider(),
+                    _SurveyFields(
+                      dateTime: _dateTime,
+                      onSurveyChanged: (survey, valid) {
+                        _onSurveyChanged(survey, index);
+
+                        if (valid) {
+                          setState(() {
+                            _validCount++;
+                          });
+                        } else {
+                          setState(() {
+                            _validCount--;
+                          });
+                        }
+
+                        printDebug(_validCount);
+                      },
+                    ),
+                  ],
+                );
+              }),
+              Row(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RoundedButton(
+                    onPressed: _onAddPressed,
+                    label: 'Add',
+                  ),
+                  RoundedButton(
+                    onPressed: _onSubmitPressed,
+                    label: 'Submit',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+///{@template _SurveyFields}
+/// Custom widget for the survey fields.
+///{@endtemplate}
+class _SurveyFields extends StatefulWidget {
+  ///{@macro _SurveyFields}
+  const _SurveyFields({
+    required DateTime dateTime,
+    required void Function(EstablishmentSurveyModel, bool) onSurveyChanged,
+  })  : _dateTime = dateTime,
+        _onSurveyChanged = onSurveyChanged;
+
+  final DateTime _dateTime;
+  final void Function(EstablishmentSurveyModel, bool) _onSurveyChanged;
+
+  @override
+  State<_SurveyFields> createState() => _SurveyFieldsState();
+}
+
+class _SurveyFieldsState extends State<_SurveyFields> {
+  final _totalController = TextEditingController();
+  final _femaleController = TextEditingController();
+  final _maleController = TextEditingController();
+
+  final _regionCubit = RegionListGetCubit();
+  final _provinceCubit = ProvinceListGetCubit();
+  final _municipalityCubit = MunicipalityListGetCubit();
+
+  RegionModel? _region;
+  ProvinceModel? _province;
+  MunicipalityModel? _municipality;
+
+  String? _totalErrorText;
+
+  String? _country;
+
+  /// Getter for the validity of the form.
+  ///
+  bool get _valid {
+    var isValidAddress = false;
+
+    final hasCountry = _country != null;
+
+    if (hasCountry) {
+      if (_country == sPhilippines) {
+        final hasRegion = _region != null;
+        final hasProvince = _province != null;
+        final hasMunicipality = _municipality != null;
+
+        isValidAddress = hasRegion && hasProvince && hasMunicipality;
+      } else {
+        isValidAddress = true;
+      }
+    }
+
+    return isValidAddress && _isValidTotal;
+  }
+
+  /// Getter for the validity of the total.
+  ///
+  bool get _isValidTotal {
+    final hasTotal = _totalController.text.isNotEmpty;
+    final hasFemale = _femaleController.text.isNotEmpty;
+    final hasMale = _maleController.text.isNotEmpty;
+
+    if (hasTotal && hasFemale && hasMale) {
+      final total = int.parse(_totalController.text);
+      final female = int.parse(_femaleController.text);
+      final male = int.parse(_maleController.text);
+
+      return (male + female) == total;
+    }
+
+    return false;
+  }
+
+  void _onFemaleChanged(String value) {
+    final male = _maleController.text;
+
+    setState(() {
+      if (value.isNotEmpty && male.isNotEmpty) {
+        if (_isValidTotal) {
+          _totalErrorText = null;
+        } else {
+          _totalErrorText = 'The value of female and male must be equal to '
+              'the total visitors';
+        }
+      }
+    });
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  void _onMaleChanged(String value) {
+    final female = _femaleController.text;
+    setState(() {
+      if (value.isNotEmpty && female.isNotEmpty) {
+        if (_isValidTotal) {
+          _totalErrorText = null;
+        } else {
+          _totalErrorText = 'The value of female and male must be equal to '
+              'the total visitors';
+        }
+      }
+    });
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  /// Method to handle the country changed.
+  ///
+  void _onCountryChanged(String? country) {
+    //  Set the country value.
+    setState(() {
+      _country = country;
+    });
+
+    //  Check if the country is Philippines.
+    if (country == sPhilippines) {
+      //  Run the region cubit.
+      _regionCubit.run();
+    }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  /// Method to handle the region changed.
+  ///
+  void _onRegionChanged(RegionModel? province) {
+    //  Set the region value.
+    setState(() {
+      _region = province;
+    });
+
+    //  Check if the province is not null.
+    if (province != null) {
+      //  Run the province cubit.
+      _provinceCubit.run(province.code);
+    }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  /// Method to handle the province changed.
+  ///
+  void _onProvinceChanged(ProvinceModel? province) {
+    //  Set the province value.
+    setState(() {
+      _province = province;
+    });
+
+    //  Check if the value is not null.
+    if (province != null) {
+      //
+      _municipalityCubit.run(province.code);
+    }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  /// Method to handle the municipality changed.
+  void _onMunicipalityChanged(MunicipalityModel? municipality) {
+    setState(() {
+      _municipality = municipality;
+    });
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  void _onSurveyChanged() {
+    final dateText = widget._dateTime;
+    final date = dateText.secondsSinceEpoch();
+
+    final survey = EstablishmentSurveyModel.add(
+      date: date,
+      total: num.parse(_totalController.text),
+      female: num.parse(_femaleController.text),
+      male: num.parse(_maleController.text),
+      country: _country ?? 'N/A',
+      region: _region?.name,
+      province: _province?.name,
+      municipality: _municipality?.name,
+    );
+
+    widget._onSurveyChanged(survey, _valid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => _regionCubit,
+        ),
+        BlocProvider(
+          create: (context) => _provinceCubit,
+        ),
+        BlocProvider(
+          create: (context) => _municipalityCubit,
+        ),
+      ],
+      child: Column(
+        children: [
+          RoundedTextField(
+            controller: _totalController,
+            label: 'Total Visitors',
+            errorText: _totalErrorText,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            keyboardType: TextInputType.number,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: RoundedTextField(
+                  controller: _femaleController,
+                  onChanged: _onFemaleChanged,
+                  label: 'Female',
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              const Gap(8),
+              Expanded(
+                child: RoundedTextField(
+                  controller: _maleController,
+                  onChanged: _onMaleChanged,
+                  label: 'Male',
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+          CountryDropdown(
+            country: _country,
+            onCountryChanged: _onCountryChanged,
+          ),
+          if (_country == sPhilippines) ...[
+            RegionDropdown(
+              bloc: _regionCubit,
+              onChanged: _onRegionChanged,
+              value: _region,
+            ),
+            ProvinceDropdown(
+              bloc: _provinceCubit,
+              onChanged: _onProvinceChanged,
+              value: _province,
+            ),
+            MunicipalityDropdown(
+              bloc: _municipalityCubit,
+              onChanged: _onMunicipalityChanged,
+              value: _municipality,
+              isFiltered: false,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

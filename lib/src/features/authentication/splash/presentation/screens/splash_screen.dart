@@ -7,6 +7,7 @@ import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/scaffolds/background_scaffold.dart';
 import 'package:naviquezon/src/features/authentication/login/presentation/screens/login_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/presentation/screens/registration_screen.dart';
+import 'package:naviquezon/src/features/profile/presentation/screens/terms_and_conditions.dart';
 
 ///{@template SplashScreen}
 /// Screen that display the initial page of the app.
@@ -31,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _showButtons = true;
       });
@@ -54,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return BackgroundScaffold(
-      foregroundColor: Colors.white.withOpacity(0.5),
+      foregroundColor: Colors.white.withValues(alpha: 0.5),
       body: (role) {
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -75,6 +76,20 @@ class _SplashScreenState extends State<SplashScreen> {
                       width: MediaQuery.of(context).size.width * 0.6,
                       onPressed: _onAccountCreationPressed,
                       label: 'Account Creation',
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        context.push(
+                          TermsAndConditionsScreen.route,
+                        );
+                      },
+                      child: const Text(
+                        'About Terms and Conditions',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     ),
                   ],
                 ),

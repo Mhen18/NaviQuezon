@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
+import 'package:naviquezon/src/core/services/location_service.dart';
 import 'package:naviquezon/src/core/services/shared_pref_service.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
 import 'package:naviquezon/src/core/utils/keys/shared_pref_keys.dart';
@@ -19,6 +20,8 @@ import 'package:naviquezon/src/features/establishment/infrastructure/repositorie
 ///{@endtemplate}
 class EstablishmentService {
   final _sharedPrefService = SharedPrefService();
+  final _locationService = LocationService();
+
   /// Future method to get the owner's establishment.
   ///
   Future<Either<Failure, EstablishmentModel?>> getOwnerEstablishment() async {
@@ -38,7 +41,7 @@ class EstablishmentService {
       );
 
       return esta;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -75,9 +78,8 @@ class EstablishmentService {
         }
       }
 
-
       return Right(establishmentList);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(stackTrace);
 
       return const Left(DefaultFailure());
@@ -95,7 +97,7 @@ class EstablishmentService {
       );
 
       return Right(req);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -137,7 +139,7 @@ class EstablishmentService {
       }
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -166,7 +168,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -194,7 +196,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -222,7 +224,7 @@ class EstablishmentService {
       );
 
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 
@@ -233,25 +235,62 @@ class EstablishmentService {
   /// Future method to add establishment survey.
   ///
   Future<Either<Failure, void>> addEstablishmentSurvey({
-    required EstablishmentSurveyModel survey,
+    required List<EstablishmentSurveyModel> surveys,
     required String establishmentId,
   }) async {
     try {
-      final userId = await _sharedPrefService.readStringSharedPref(spUserId);
-
-      if (userId == null) {
-        return const Left(DefaultFailure());
+      for (final survey in surveys) {
+        await EstablishmentFirebaseRepository.postEstablishmentSurvey(
+          survey: survey,
+          establishmentId: establishmentId,
+        );
       }
 
-      await EstablishmentFirebaseRepository.postEstablishmentSurvey(
-        survey: survey.copyWith(
-          userId: userId,
-        ),
-        establishmentId: establishmentId,
-      );
-
       return const Right(null);
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
+      printError(e);
+      printError(stackTrace);
+
+      return const Left(DefaultFailure());
+    }
+  }
+
+  /// Future method to navigate to the establishment.
+  ///
+  Future<Either<Failure, String>> navigateEstablishment({
+    required List<EstablishmentModel> estaList,
+  }) async {
+    try {
+      final location = await _locationService.getCurrentLocation();
+
+      return location.fold(
+        Left.new,
+        (position) async {
+          final waypoints = <String>[];
+
+          for (final esta in estaList) {
+            waypoints.add('${esta.latitude},${esta.longitude}');
+          }
+
+          final points = waypoints
+              .sublist(
+                0,
+                waypoints.length - 1,
+              )
+              .join('|');
+
+          // Check if the list contains only one or multiple waypoints.
+          final url = (waypoints.length == 1)
+              ? 'https://www.google.com/maps/dir/?api=1&destination=${waypoints.first}' // Single destination
+              : 'https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}'
+                  '&destination=${waypoints.last}' // Use the last point as the
+                  // final destination
+                  '&waypoints=$points'; // All except the last as waypoints
+
+          return Right(url);
+        },
+      );
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

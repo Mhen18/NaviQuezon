@@ -15,7 +15,7 @@ class VerificationRoute {
       final role = context.read<AppRoleCubit>().state;
 
       //  Check if the role is not admin.
-      if (role != AppRoleEnum.superAdmin) {
+      if (role != AppRoleEnum.admin && role != AppRoleEnum.superAdmin) {
         //  Navigate to the error route.
         return const ErrorRouteContainer();
       }

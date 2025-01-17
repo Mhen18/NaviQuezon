@@ -9,6 +9,7 @@ import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/features/admin/verification/application/blocs/get_verification_list_cubit.dart';
 import 'package:naviquezon/src/features/admin/verification/domain/verification_sort_enum.dart';
 import 'package:naviquezon/src/features/admin/verification/presentation/verification_details_screen.dart';
+import 'package:naviquezon/src/features/profile/application/blocs/profile_get_cubit.dart';
 import 'package:naviquezon/src/features/profile/domain/models/profile_model.dart';
 
 ///{@template VerificationScreen}
@@ -28,6 +29,49 @@ class _ScreenState extends State<VerificationScreen> {
   final _verificationCubit = GetVerificationListCubit();
 
   VerificationSortEnum _currentSort = VerificationSortEnum.createdDate;
+
+  /// Getter for the profile model.
+  ///
+  ProfileModel? get _profile {
+    final profileCubit = context.read<ProfileGetCubit>();
+    final profileState = profileCubit.state;
+
+    if (profileState is CubitStateSuccess<ProfileModel>) {
+      return profileState.value;
+    }
+
+    return null;
+  }
+
+  /// Method to filter the profile list based on the current profile.
+  ///
+  List<ProfileModel> _filteredProfileList(List<ProfileModel> profileList) {
+    final filteredProfileList = <ProfileModel>[];
+
+    //  Loop through the profile list and filter the profile based on the
+    //  municipality of the current profile
+    for (final profile in profileList) {
+      if (_profile?.municipality == profile.municipality) {
+        filteredProfileList.add(profile);
+      }
+    }
+
+    switch (_currentSort) {
+      case VerificationSortEnum.createdDate:
+        filteredProfileList.sort(
+          (a, b) => a.createdDate.compareTo(b.createdDate),
+        );
+      case VerificationSortEnum.email:
+        filteredProfileList.sort(
+          (a, b) => a.email.compareTo(b.email),
+        );
+      case VerificationSortEnum.none:
+      case VerificationSortEnum.name:
+      case VerificationSortEnum.updatedDate:
+    }
+
+    return filteredProfileList;
+  }
 
   @override
   void initState() {
@@ -72,7 +116,7 @@ class _ScreenState extends State<VerificationScreen> {
     _onSort(VerificationSortEnum.createdDate);
   }
 
-  void _onSort(VerificationSortEnum sort){
+  void _onSort(VerificationSortEnum sort) {
     context.pop();
 
     setState(() {
@@ -131,18 +175,20 @@ class _ScreenState extends State<VerificationScreen> {
             } else if (state is CubitStateSuccess<List<ProfileModel>>) {
               final profileList = state.value;
 
-              if (profileList.isEmpty) {
+              final filteredProfile = _filteredProfileList(profileList);
+
+              if (filteredProfile.isEmpty) {
                 return const Center(
                   child: Text('No account to verify'),
                 );
               }
 
               return ListView.separated(
-                itemCount: profileList.length,
+                itemCount: filteredProfile.length,
                 padding: const EdgeInsets.all(16),
                 separatorBuilder: (context, index) => const Gap(8),
                 itemBuilder: (context, index) {
-                  final profile = profileList[index];
+                  final profile = filteredProfile[index];
 
                   return _VerificationAccountCard(
                     onPressed: () => _onCardPressed(profile),

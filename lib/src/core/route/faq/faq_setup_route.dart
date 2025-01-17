@@ -15,7 +15,7 @@ class FaqSetupRoute {
       //  Get the current role.
       final role = context.read<AppRoleCubit>().state;
 
-      //  Check if the role is not admin.
+      //  Check if the role is not superadmin.
       if (role != AppRoleEnum.superAdmin) {
         return const ErrorRouteContainer();
       }

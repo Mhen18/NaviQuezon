@@ -31,7 +31,7 @@ class ImagePickerCubit extends Cubit<CubitState> {
           CubitStateFailed(const DefaultFailure(message: 'No image picked')),
         );
       }
-    } catch (e) {
+    } on Exception catch (_) {
       emit(CubitStateFailed(const DefaultFailure()));
     }
   }

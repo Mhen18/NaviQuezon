@@ -16,9 +16,12 @@ import 'package:naviquezon/src/core/widgets/app_bars/default_app_bar.dart';
 import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/containers/box_label_container.dart';
 import 'package:naviquezon/src/core/widgets/containers/error_state_container.dart';
+import 'package:naviquezon/src/core/widgets/dialogs/loading_dialog.dart';
 import 'package:naviquezon/src/core/widgets/dropdowns/municipality_dropdown.dart';
+import 'package:naviquezon/src/core/widgets/snack_bars/app_snack_bar.dart';
 import 'package:naviquezon/src/core/widgets/text_fields/rounded_text_field.dart';
 import 'package:naviquezon/src/features/admin/accounts/presentation/screens/account_manage_screen.dart';
+import 'package:naviquezon/src/features/admin/report/application/blocs/report_download_cubit.dart';
 import 'package:naviquezon/src/features/admin/report/presentation/widgets/admin_drawer.dart';
 import 'package:naviquezon/src/features/admin/verification/presentation/verification_screen.dart';
 import 'package:naviquezon/src/features/authentication/registration/domain/models/municipality_model.dart';
@@ -47,6 +50,7 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   final _estaCubit = EstablishmentListGetCubit();
+  final _reportCubit = ReportDownloadCubit();
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -160,14 +164,35 @@ class _ReportScreenState extends State<ReportScreen> {
     context.go(SplashScreen.route);
   }
 
+  /// Method to handle the download pressed.
+  ///
+  void _onDownloadPressed(List<EstablishmentModel> establishmentList) {
+    final reportDownload = ReportDownloadParams(
+      establishmentList: establishmentList,
+      dateTime: _filterDateTime,
+      municipality: _municipality,
+    );
+
+    _reportCubit.run(
+      params: reportDownload,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => _estaCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => _estaCubit,
+        ),
+        BlocProvider(
+          create: (context) => _reportCubit,
+        ),
+      ],
       child: Scaffold(
         key: _scaffoldKey,
         endDrawer: AdminDrawer(
-          isSuperAdmin: _role == AppRoleEnum.superAdmin,
+          role: _role,
           onEditPressed: _onEditPressed,
           onVerifyPressed: _onVerifyPressed,
           onFaqSetupPressed: _onFaqSetupPressed,
@@ -179,83 +204,127 @@ class _ReportScreenState extends State<ReportScreen> {
         appBar: DefaultAppBar(
           onProfilePressed: _onProfilePressed,
         ),
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Divider(),
-            Expanded(
-              child: BlocBuilder<EstablishmentListGetCubit, CubitState>(
-                builder: (context, estaState) {
-                  if (estaState is CubitStateLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+        body: BlocListener<ReportDownloadCubit, CubitState>(
+          listener: (context, reportState) {
+            if (reportState is CubitStateLoading) {
+              //  Show the loading dialog.
+              LoadingDialog.show(context);
+            }
 
-                  if (estaState is CubitStateFailed) {
-                    final failure = estaState.failure;
-                    return ErrorStateContainer(
-                      message: failure.message,
-                      onPressed: _estaCubit.run,
-                    );
-                  }
+            if (reportState is CubitStateFailed) {
+              //  Hide the loading dialog.
+              LoadingDialog.hide(context);
 
-                  if (estaState is CubitStateSuccess) {
-                    final value = estaState.value;
-                    final list = value as List<EstablishmentModel>;
-                    final filteredList = list.where((element) {
-                      return element.municipality == _municipality;
-                    }).toList();
+              //  Get the failure message.
+              final message = reportState.failure.message;
 
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tourism Attraction Visitor Record',
-                            style: textStyle16w700,
-                          ),
-                          const Gap(8),
-                          Text.rich(
-                            TextSpan(
+              //  Show the error snackBar.
+              AppSnackBar.error(context).show(message);
+            }
+
+            if (reportState is CubitStateSuccess) {
+              //  Hide the loading dialog.
+              LoadingDialog.hide(context);
+
+              //  Show the success snackBar.
+              AppSnackBar.success(context).show(
+                'Report generated as excel downloaded successfully',
+              );
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Divider(),
+              Expanded(
+                child: BlocBuilder<EstablishmentListGetCubit, CubitState>(
+                  builder: (context, estaState) {
+                    if (estaState is CubitStateLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (estaState is CubitStateFailed) {
+                      final failure = estaState.failure;
+                      return ErrorStateContainer(
+                        message: failure.message,
+                        onPressed: _estaCubit.run,
+                      );
+                    }
+
+                    if (estaState is CubitStateSuccess) {
+                      final value = estaState.value;
+                      final list = value as List<EstablishmentModel>;
+                      final filteredList = list.where((element) {
+                        return element.municipality == _municipality;
+                      }).toList();
+
+                      return Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              spacing: 8,
                               children: [
-                                const TextSpan(text: 'Month/Year: '),
-                                TextSpan(
-                                  text: _monthYear,
-                                  style: textStyle16w600,
+                                Expanded(
+                                  child: Text(
+                                    'Tourism Attraction Visitor Record',
+                                    style: textStyle16w700,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () => _onDownloadPressed(
+                                    filteredList,
+                                  ),
+                                  icon: const Icon(
+                                    Icons.download,
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Name of the Municipality: ',
-                                ),
-                                TextSpan(
-                                  text: _municipality,
-                                  style: textStyle16w600,
-                                ),
-                              ],
+                            const Gap(8),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(text: 'Month/Year: '),
+                                  TextSpan(
+                                    text: _monthYear,
+                                    style: textStyle16w600,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Gap(16),
-                          _ReportVisitorRecord(
-                            establishmentList: filteredList,
-                            dateTime: _filterDateTime,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Name of the Municipality: ',
+                                  ),
+                                  TextSpan(
+                                    text: _municipality,
+                                    style: textStyle16w600,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Gap(16),
+                            _ReportVisitorRecord(
+                              establishmentList: filteredList,
+                              dateTime: _filterDateTime,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
 
-                  return const SizedBox();
-                },
+                    return const SizedBox();
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -419,10 +488,14 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        if (report.municipality != _municipality) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
+        if (report.country == sPhilippines) {
+          if (report.province == sQuezonProvince) {
+            if (report.municipality != _municipality) {
+              total += report.total;
+              female += report.female;
+              male += report.male;
+            }
+          }
         }
       }
     }
@@ -457,10 +530,12 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        if (report.country != sPhilippines) {
-          total += report.total;
-          female += report.female;
-          male += report.male;
+        if (report.country != null) {
+          if (report.country != sPhilippines) {
+            total += report.total;
+            female += report.female;
+            male += report.male;
+          }
         }
       }
     }
@@ -475,9 +550,11 @@ class _RecordContainer extends StatelessWidget {
 
     if (_reportList.isNotEmpty) {
       for (final report in _reportList) {
-        total += report.total;
-        female += report.female;
-        male += report.male;
+        if (report.country != null) {
+          total += report.total;
+          female += report.female;
+          male += report.male;
+        }
       }
     }
 

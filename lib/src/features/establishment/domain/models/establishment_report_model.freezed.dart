@@ -25,7 +25,6 @@ mixin _$EstablishmentReportModel {
   num get total => throw _privateConstructorUsedError;
   num get female => throw _privateConstructorUsedError;
   num get male => throw _privateConstructorUsedError;
-  String? get userId => throw _privateConstructorUsedError;
   String? get municipality => throw _privateConstructorUsedError;
   String? get province => throw _privateConstructorUsedError;
   String? get country => throw _privateConstructorUsedError;
@@ -53,7 +52,6 @@ abstract class $EstablishmentReportModelCopyWith<$Res> {
       num total,
       num female,
       num male,
-      String? userId,
       String? municipality,
       String? province,
       String? country,
@@ -81,7 +79,6 @@ class _$EstablishmentReportModelCopyWithImpl<$Res,
     Object? total = null,
     Object? female = null,
     Object? male = null,
-    Object? userId = freezed,
     Object? municipality = freezed,
     Object? province = freezed,
     Object? country = freezed,
@@ -105,10 +102,6 @@ class _$EstablishmentReportModelCopyWithImpl<$Res,
           ? _value.male
           : male // ignore: cast_nullable_to_non_nullable
               as num,
-      userId: freezed == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String?,
       municipality: freezed == municipality
           ? _value.municipality
           : municipality // ignore: cast_nullable_to_non_nullable
@@ -147,7 +140,6 @@ abstract class _$$EstablishmentReportModelImplCopyWith<$Res>
       num total,
       num female,
       num male,
-      String? userId,
       String? municipality,
       String? province,
       String? country,
@@ -174,7 +166,6 @@ class __$$EstablishmentReportModelImplCopyWithImpl<$Res>
     Object? total = null,
     Object? female = null,
     Object? male = null,
-    Object? userId = freezed,
     Object? municipality = freezed,
     Object? province = freezed,
     Object? country = freezed,
@@ -198,10 +189,6 @@ class __$$EstablishmentReportModelImplCopyWithImpl<$Res>
           ? _value.male
           : male // ignore: cast_nullable_to_non_nullable
               as num,
-      userId: freezed == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String?,
       municipality: freezed == municipality
           ? _value.municipality
           : municipality // ignore: cast_nullable_to_non_nullable
@@ -235,7 +222,6 @@ class _$EstablishmentReportModelImpl implements _EstablishmentReportModel {
       required this.total,
       required this.female,
       required this.male,
-      this.userId,
       this.municipality,
       this.province,
       this.country,
@@ -254,8 +240,6 @@ class _$EstablishmentReportModelImpl implements _EstablishmentReportModel {
   @override
   final num male;
   @override
-  final String? userId;
-  @override
   final String? municipality;
   @override
   final String? province;
@@ -268,7 +252,7 @@ class _$EstablishmentReportModelImpl implements _EstablishmentReportModel {
 
   @override
   String toString() {
-    return 'EstablishmentReportModel(date: $date, total: $total, female: $female, male: $male, userId: $userId, municipality: $municipality, province: $province, country: $country, establishmentId: $establishmentId, establishmentName: $establishmentName)';
+    return 'EstablishmentReportModel(date: $date, total: $total, female: $female, male: $male, municipality: $municipality, province: $province, country: $country, establishmentId: $establishmentId, establishmentName: $establishmentName)';
   }
 
   @override
@@ -280,7 +264,6 @@ class _$EstablishmentReportModelImpl implements _EstablishmentReportModel {
             (identical(other.total, total) || other.total == total) &&
             (identical(other.female, female) || other.female == female) &&
             (identical(other.male, male) || other.male == male) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.municipality, municipality) ||
                 other.municipality == municipality) &&
             (identical(other.province, province) ||
@@ -294,18 +277,8 @@ class _$EstablishmentReportModelImpl implements _EstablishmentReportModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      date,
-      total,
-      female,
-      male,
-      userId,
-      municipality,
-      province,
-      country,
-      establishmentId,
-      establishmentName);
+  int get hashCode => Object.hash(runtimeType, date, total, female, male,
+      municipality, province, country, establishmentId, establishmentName);
 
   /// Create a copy of EstablishmentReportModel
   /// with the given fields replaced by the non-null parameter values.
@@ -330,7 +303,6 @@ abstract class _EstablishmentReportModel implements EstablishmentReportModel {
       required final num total,
       required final num female,
       required final num male,
-      final String? userId,
       final String? municipality,
       final String? province,
       final String? country,
@@ -348,8 +320,6 @@ abstract class _EstablishmentReportModel implements EstablishmentReportModel {
   num get female;
   @override
   num get male;
-  @override
-  String? get userId;
   @override
   String? get municipality;
   @override

@@ -14,13 +14,13 @@ class EstablishmentSurveyAddCubit extends Cubit<CubitState> {
   /// Method to run and emit state for [EstablishmentSurveyAddCubit].
   ///
   Future<void> run({
-    required EstablishmentSurveyModel survey,
+    required List<EstablishmentSurveyModel> surveys,
     required String establishmentId,
   }) async {
     emit(CubitStateLoading());
 
     final service = await _establishmentService.addEstablishmentSurvey(
-      survey: survey,
+      surveys: surveys,
       establishmentId: establishmentId,
     );
 

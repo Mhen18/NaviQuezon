@@ -10,6 +10,7 @@ import 'package:naviquezon/src/core/route/authentication/forgot_password_route.d
 import 'package:naviquezon/src/core/route/authentication/login_route.dart';
 import 'package:naviquezon/src/core/route/authentication/registration_route.dart';
 import 'package:naviquezon/src/core/route/authentication/splash_route.dart';
+import 'package:naviquezon/src/core/route/authentication/terms_and_condition_route.dart';
 import 'package:naviquezon/src/core/route/authentication/validation_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_details_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_image_route.dart';
@@ -19,13 +20,14 @@ import 'package:naviquezon/src/core/route/establishment/establishment_reviews_ro
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_amenity_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_assets_route.dart';
 import 'package:naviquezon/src/core/route/establishment/establishment_setup_route.dart';
-import 'package:naviquezon/src/core/route/establishment/establishment_visited_route.dart';
 import 'package:naviquezon/src/core/route/faq/faq_setup_route.dart';
 import 'package:naviquezon/src/core/route/profile/profile_edit_route.dart';
 import 'package:naviquezon/src/core/route/profile/profile_password_edit_route.dart';
 import 'package:naviquezon/src/core/utils/loggers/go_router_logger.dart';
 import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/core/widgets/containers/error_route_container.dart';
+
+
 
 ///{@template AppRouter}
 /// Config for the router of the app.
@@ -44,6 +46,7 @@ class AppRouter {
     routes: [
       //  Authentication
       SplashRoute.route,
+      TermsAndConditionRoute.route,
       LoginRoute.route,
       RegistrationRoute.route,
       ValidationRoute.route,
@@ -70,7 +73,6 @@ class AppRouter {
       EstablishmentImageRoute.route,
       EstablishmentLikeRoute.route,
       EstablishmentReviewsRoute.route,
-      EstablishmentVisitedRoute.route,
 
       //  Profile
       ProfileEditRoute.route,

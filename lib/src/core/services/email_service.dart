@@ -31,7 +31,7 @@ class EmailService {
       } else {
         return const Left(DefaultFailure());
       }
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
 

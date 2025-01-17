@@ -21,8 +21,8 @@ class VerificationDetailsRoute {
         return const ErrorRouteContainer();
       }
 
-      //  Check if the role is not admin.
-      if (role != AppRoleEnum.superAdmin) {
+      //  Check if the role is not admin or superAdmin.
+      if (role != AppRoleEnum.admin && role != AppRoleEnum.superAdmin) {
         //  Navigate to the error route.
         return const ErrorRouteContainer();
       }

@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/themes/styles/color_style.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
@@ -99,7 +100,7 @@ class _ScreenState extends State<EstablishmentMapScreen> {
 
       //  Return the image marker.
       return imageMarker;
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -132,7 +133,7 @@ class _ScreenState extends State<EstablishmentMapScreen> {
       );
 
       return byteData?.buffer.asUint8List();
-    } catch (e, stackTrace) {
+    } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);
     }
@@ -292,11 +293,34 @@ class _EstablishmentCardState extends State<_EstablishmentCard> {
   /// Getter for the itinerary.
   ///
   bool get _itinerary {
-    final itineraryList = _profile?.estaItinerary ?? [];
+    //  Get the itinerary from the profile model.
+    final profileItinerary = _profile?.estaItinerary ?? [];
 
-    return itineraryList.where((itinerary) {
-      return itinerary.establishmentId == _establishment.id;
-    }).isNotEmpty;
+    //  Check if the itinerary is already added to the profile.
+    for (final itinerary in profileItinerary) {
+      if (itinerary.establishmentId == _establishment.id) {
+        //  Check if the plan date is not null
+        final planDate = itinerary.planDate;
+
+        if (planDate != null) {
+          final datePlan = DateFormat('MMMM d, yyyy').parse(planDate);
+          final dateNow = DateTime.now();
+          final dateDiff = datePlan.difference(dateNow);
+
+          //  Check if the date difference is already in history
+          return !dateDiff.isNegative;
+        }
+      }
+    }
+
+    return false;
+    // final itineraryList = _profile?.estaItinerary ?? [];
+    //
+    // final list =  itineraryList.where((itinerary) {
+    //   return itinerary.establishmentId == _establishment.id;
+    // }).isNotEmpty;
+    //
+    // final planDate =
   }
 
   /// Getter for the ratings.
@@ -304,7 +328,7 @@ class _EstablishmentCardState extends State<_EstablishmentCard> {
   String? get _ratings {
     final rating = _establishment.rating;
 
-    if(rating != null){
+    if (rating != null) {
       return rating.toStringAsFixed(1);
     }
 
@@ -321,28 +345,63 @@ class _EstablishmentCardState extends State<_EstablishmentCard> {
   /// Method to handle the add itinerary pressed.
   ///
   void _onAddItineraryPressed() {
-    if (_loading.value == true) return;
+    AppSnackBar.info(context).show('Choose a date to add to itinerary.');
 
-    final itineraryList = _profile?.estaItinerary ?? [];
+    _showDatePicker();
+  }
 
-    if (itineraryList.isNotEmpty) {
-      final itineraryExist = itineraryList
-          .where((itinerary) => itinerary.establishmentId == _establishment.id)
-          .isNotEmpty;
+  /// Method to show the date picker.
+  ///
+  void _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate:
+          DateTime.now().add(const Duration(days: 365)), // Set a future date
+    ).then((value) {
+      if (value != null) {
+        //  Format the selected date
+        final selectedDate = DateFormat('MMMM dd, yyyy').format(value);
 
-      if (itineraryExist) {
-        return;
+        //  Check if the loading is already in progress
+        if (_loading.value == true) return;
+
+        //  Check if the itinerary is already added to the profile.
+        final alreadyAdded = _itinerary;
+        if (alreadyAdded) {
+          return;
+        }
+
+        // final profileItinerary = _profile?.estaItinerary ?? [];
+        //
+        // for (final itinerary in profileItinerary) {
+        //   if (itinerary.establishmentId == _establishment.id) {
+        //     final planDate = itinerary.planDate;
+        //
+        //     if (planDate != null) {
+        //       final datePlan = DateFormat('MMMM d, yyyy').parse(planDate);
+        //       final dateNow = DateTime.now();
+        //       final dateDiff = datePlan.difference(dateNow);
+        //
+        //       if (!dateDiff.isNegative) {
+        //         return;
+        //       }
+        //     }
+        //   }
+        // }
+
+        //  Add the itinerary to the profile.
+        final newItinerary = EstablishmentItineraryModel.add(
+          establishmentId: _establishment.id,
+          planDate: selectedDate,
+        );
+
+        _itineraryCubit.run(
+          itinerary: newItinerary,
+        );
       }
-    }
-
-    //  Add the itinerary to the profile.
-    final newItinerary = EstablishmentItineraryModel.add(
-      establishmentId: _establishment.id,
-    );
-
-    _itineraryCubit.run(
-      itinerary: newItinerary,
-    );
+    });
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
 import 'package:naviquezon/src/core/utils/constants/exceptions/email_not_exist_excetion.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
 import 'package:naviquezon/src/core/utils/keys/database_keys.dart';
+import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_itinerary_model.dart';
 import 'package:naviquezon/src/features/profile/domain/models/profile_model.dart';
 import 'package:naviquezon/src/features/profile/domain/models/profile_validation_model.dart';
@@ -196,6 +197,8 @@ class ProfileFirebaseRepository {
     required String userId,
   }) async {
     try {
+      printDebug('User ID: $userId');
+
       //  Get the reference to the database
       final reference = FirebaseDatabase.instance.ref('profile/$userId');
 
