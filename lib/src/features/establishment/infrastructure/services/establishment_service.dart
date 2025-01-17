@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fpdart/fpdart.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
 import 'package:naviquezon/src/core/models/address_model.dart';
+import 'package:naviquezon/src/core/services/location_service.dart';
 import 'package:naviquezon/src/core/services/shared_pref_service.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
 import 'package:naviquezon/src/core/utils/keys/shared_pref_keys.dart';
@@ -20,6 +21,7 @@ import 'package:naviquezon/src/features/establishment/infrastructure/repositorie
 ///{@endtemplate}
 class EstablishmentService {
   final _sharedPrefService = SharedPrefService();
+  final _locationService = LocationService();
 
   /// Future method to get the owner's establishment.
   ///
@@ -246,6 +248,41 @@ class EstablishmentService {
       );
 
       return const Right(null);
+    } on Exception catch (e, stackTrace) {
+      printError(e);
+      printError(stackTrace);
+
+      return const Left(DefaultFailure());
+    }
+  }
+
+  /// Future method to navigate to the establishment.
+  ///
+  Future<Either<Failure, String>> navigateEstablishment({
+    required List<EstablishmentModel> estaList,
+  }) async {
+    try {
+      final location = await _locationService.getCurrentLocation();
+
+      return location.fold(
+        Left.new,
+        (position) async {
+          final waypoints = <String>[];
+
+          for (final esta in estaList) {
+            waypoints.add('${esta.latitude},${esta.longitude}');
+          }
+
+          // Check if the list contains only one or multiple waypoints.
+          final url = (waypoints.length == 1)
+              ? 'https://www.google.com/maps/dir/?api=1&destination=${waypoints.first}' // Single destination
+              : 'https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}'
+                  '&destination=${waypoints.last}' // Use the last point as the final destination
+                  "&waypoints=${waypoints.sublist(0, waypoints.length - 1).join('|')}"; // All except the last as waypoints
+
+          return Right(url);
+        },
+      );
     } on Exception catch (e, stackTrace) {
       printError(e);
       printError(stackTrace);

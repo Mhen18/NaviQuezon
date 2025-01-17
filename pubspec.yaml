@@ -40,12 +40,12 @@ dependencies:
   intl: ^0.20.1
   json_annotation: ^4.9.0
   month_picker_dialog: ^6.0.3
+  path_provider: ^2.1.5
   permission_handler: ^11.3.1
   rxdart: ^0.28.0
   shared_preferences: ^2.3.5
   url_launcher: ^6.3.1
   video_player: ^2.9.2
-  path_provider: ^2.1.5
 
 dev_dependencies:
   build_runner: ^2.4.14
