@@ -6,9 +6,9 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
-import 'package:naviquezon/src/core/models/address_model.dart';
 import 'package:naviquezon/src/core/utils/constants/enums/app_role_enums.dart';
 import 'package:naviquezon/src/core/utils/keys/database_keys.dart';
+import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
 import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_add_model.dart';
 import 'package:naviquezon/src/features/establishment/domain/models/establishment_amenity_model.dart';
@@ -636,7 +636,6 @@ class EstablishmentFirebaseRepository {
   ///
   static Future<void> postEstablishmentSurvey({
     required EstablishmentSurveyModel survey,
-    required AddressModel address,
     required String establishmentId,
   }) async {
     try {
@@ -657,10 +656,10 @@ class EstablishmentFirebaseRepository {
         total: survey.total,
         female: survey.female,
         male: survey.male,
-        country: address.country,
-        region: address.region?.name,
-        province: address.province?.name,
-        municipality: address.municipality?.name,
+        country: survey.country ?? sPhilippines,
+        region: survey.region,
+        province: survey.province,
+        municipality: survey.municipality,
         createdDate: ServerValue.timestamp,
         updatedDate: ServerValue.timestamp,
       );

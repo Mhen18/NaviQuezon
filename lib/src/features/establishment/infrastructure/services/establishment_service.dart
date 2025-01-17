@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:naviquezon/src/core/abstracts/failure_abstract.dart';
-import 'package:naviquezon/src/core/models/address_model.dart';
 import 'package:naviquezon/src/core/services/location_service.dart';
 import 'package:naviquezon/src/core/services/shared_pref_service.dart';
 import 'package:naviquezon/src/core/utils/constants/failures/default_failure.dart';
@@ -236,16 +235,16 @@ class EstablishmentService {
   /// Future method to add establishment survey.
   ///
   Future<Either<Failure, void>> addEstablishmentSurvey({
-    required EstablishmentSurveyModel survey,
-    required AddressModel address,
+    required List<EstablishmentSurveyModel> surveys,
     required String establishmentId,
   }) async {
     try {
-      await EstablishmentFirebaseRepository.postEstablishmentSurvey(
-        survey: survey,
-        address: address,
-        establishmentId: establishmentId,
-      );
+      for (final survey in surveys) {
+        await EstablishmentFirebaseRepository.postEstablishmentSurvey(
+          survey: survey,
+          establishmentId: establishmentId,
+        );
+      }
 
       return const Right(null);
     } on Exception catch (e, stackTrace) {
@@ -273,12 +272,20 @@ class EstablishmentService {
             waypoints.add('${esta.latitude},${esta.longitude}');
           }
 
+          final points = waypoints
+              .sublist(
+                0,
+                waypoints.length - 1,
+              )
+              .join('|');
+
           // Check if the list contains only one or multiple waypoints.
           final url = (waypoints.length == 1)
               ? 'https://www.google.com/maps/dir/?api=1&destination=${waypoints.first}' // Single destination
               : 'https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}'
-                  '&destination=${waypoints.last}' // Use the last point as the final destination
-                  "&waypoints=${waypoints.sublist(0, waypoints.length - 1).join('|')}"; // All except the last as waypoints
+                  '&destination=${waypoints.last}' // Use the last point as the
+                  // final destination
+                  '&waypoints=$points'; // All except the last as waypoints
 
           return Right(url);
         },

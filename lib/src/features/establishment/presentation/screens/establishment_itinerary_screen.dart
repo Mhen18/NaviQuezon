@@ -384,8 +384,8 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
                                       final establishments = entry.value;
 
                                       return [
-                                        Text(
-                                          date,
+                                        Center(
+                                          child: Text(date),
                                         ),
                                         const Gap(8),
                                         ...establishments.map((establishment) {
@@ -406,22 +406,6 @@ class _ScreenState extends State<EstablishmentItineraryScreen> {
                                 ),
                               ],
                             );
-
-                          //  Display the list of establishments
-                          // return ListView.separated(
-                          //   padding: const EdgeInsets.all(16),
-                          //   itemCount: estaList.length,
-                          //   itemBuilder: (context, index) {
-                          //     final establishment = estaList[index];
-                          //
-                          //     return EstablishmentCardWidget.create(
-                          //       establishment: establishment,
-                          //     );
-                          //   },
-                          //   separatorBuilder: (context, index) {
-                          //     return const Gap(18);
-                          //   },
-                          // );
                         }
                       }
 
