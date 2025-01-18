@@ -3,16 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:naviquezon/src/core/abstracts/cubit_state_abstract.dart';
 import 'package:naviquezon/src/core/blocs/municipality_list_get_cubit.dart';
 import 'package:naviquezon/src/core/blocs/province_list_get_cubit.dart';
 import 'package:naviquezon/src/core/blocs/region_list_get_cubit.dart';
-import 'package:naviquezon/src/core/models/address_model.dart';
 import 'package:naviquezon/src/core/themes/styles/text_style_default.dart';
 import 'package:naviquezon/src/core/utils/extensions/datetime_extensions.dart';
 import 'package:naviquezon/src/core/utils/keys/route_keys.dart';
 import 'package:naviquezon/src/core/utils/keys/string_keys.dart';
+import 'package:naviquezon/src/core/utils/loggers/print_logger.dart';
 import 'package:naviquezon/src/core/widgets/app_bars/default_app_bar.dart';
 import 'package:naviquezon/src/core/widgets/buttons/rounded_button.dart';
 import 'package:naviquezon/src/core/widgets/dialogs/default_dialog.dart';
@@ -229,12 +228,10 @@ class _ScreenState extends State<EstablishmentOwnerScreen> {
   /// Method to handle the submit survey button.
   ///
   void _onSubmitSurveyPressed(
-    EstablishmentSurveyModel survey,
-    AddressModel address,
+    List<EstablishmentSurveyModel> surveys,
   ) {
     _surveyCubit.run(
-      survey: survey,
-      address: address,
+      surveys: surveys,
       establishmentId: _establishment?.id ?? '',
     );
   }
@@ -369,7 +366,7 @@ class _ScreenState extends State<EstablishmentOwnerScreen> {
                             IconButton(
                               tooltip: 'Profile',
                               icon: const Icon(Icons.account_circle),
-                              onPressed: (){
+                              onPressed: () {
                                 Scaffold.of(context).openEndDrawer();
                               },
                             ),
@@ -494,13 +491,10 @@ class _OwnerDrawer extends StatelessWidget {
 class _SurveyBottomSheet extends StatefulWidget {
   ///{@macro _SurveyBottomSheet}
   const _SurveyBottomSheet({
-    required void Function(
-      EstablishmentSurveyModel,
-      AddressModel,
-    ) onSubmitPressed,
+    required void Function(List<EstablishmentSurveyModel>) onSubmitPressed,
   }) : _onSubmitPressed = onSubmitPressed;
 
-  final void Function(EstablishmentSurveyModel, AddressModel) _onSubmitPressed;
+  final void Function(List<EstablishmentSurveyModel>) _onSubmitPressed;
 
   @override
   State<_SurveyBottomSheet> createState() => _BottomSheetState();
@@ -508,6 +502,149 @@ class _SurveyBottomSheet extends StatefulWidget {
 
 class _BottomSheetState extends State<_SurveyBottomSheet> {
   final _dateController = TextEditingController();
+  DateTime _dateTime = DateTime.now();
+  int _surveyCount = 1;
+  final List<EstablishmentSurveyModel> _surveys = [];
+  int _validCount = -1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _dateController.text = _dateTime.formatDate();
+  }
+
+  /// Method to show the date picker.
+  ///
+  Future<void> _showDatePicker() async {
+    final datePicker = await showDatePicker(
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      context: context,
+    );
+
+    if (datePicker != null) {
+      setState(() {
+        _dateController.text = datePicker.formatDate();
+        _dateTime = datePicker;
+      });
+    }
+  }
+
+  /// Method to handle the add pressed.
+  ///
+  void _onAddPressed() {
+    setState(() {
+      _surveyCount++;
+    });
+  }
+
+  void _onSubmitPressed() {
+    context.pop();
+    widget._onSubmitPressed(_surveys);
+  }
+
+  /// Method to handle the survey changed.
+  ///
+  void _onSurveyChanged(EstablishmentSurveyModel survey, int index) {
+    if (index < _surveys.length) {
+      _surveys[index] = survey;
+    } else {
+      _surveys.add(survey);
+    }
+
+    printDebug(_surveys);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              RoundedTextField(
+                controller: _dateController,
+                label: 'When did they visit?',
+                readOnly: true,
+                suffixIcon: IconButton(
+                  onPressed: _showDatePicker,
+                  icon: const Icon(Icons.calendar_today),
+                ),
+              ),
+              ...List.generate(_surveyCount, (index) {
+                return Column(
+                  children: [
+                    if (index > 0) const Divider(),
+                    _SurveyFields(
+                      dateTime: _dateTime,
+                      onSurveyChanged: (survey, valid) {
+                        _onSurveyChanged(survey, index);
+
+                        if (valid) {
+                          setState(() {
+                            _validCount++;
+                          });
+                        } else {
+                          setState(() {
+                            _validCount--;
+                          });
+                        }
+
+                        printDebug(_validCount);
+                      },
+                    ),
+                  ],
+                );
+              }),
+              Row(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RoundedButton(
+                    onPressed: _onAddPressed,
+                    label: 'Add',
+                  ),
+                  RoundedButton(
+                    onPressed: _onSubmitPressed,
+                    label: 'Submit',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+///{@template _SurveyFields}
+/// Custom widget for the survey fields.
+///{@endtemplate}
+class _SurveyFields extends StatefulWidget {
+  ///{@macro _SurveyFields}
+  const _SurveyFields({
+    required DateTime dateTime,
+    required void Function(EstablishmentSurveyModel, bool) onSurveyChanged,
+  })  : _dateTime = dateTime,
+        _onSurveyChanged = onSurveyChanged;
+
+  final DateTime _dateTime;
+  final void Function(EstablishmentSurveyModel, bool) _onSurveyChanged;
+
+  @override
+  State<_SurveyFields> createState() => _SurveyFieldsState();
+}
+
+class _SurveyFieldsState extends State<_SurveyFields> {
   final _totalController = TextEditingController();
   final _femaleController = TextEditingController();
   final _maleController = TextEditingController();
@@ -521,8 +658,6 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
   MunicipalityModel? _municipality;
 
   String? _totalErrorText;
-
-  DateTime _dateTime = DateTime.now();
 
   String? _country;
 
@@ -566,29 +701,6 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
     return false;
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    _dateController.text = _dateTime.formatDate();
-  }
-
-  Future<void> _showDatePicker() async {
-    final datePicker = await showDatePicker(
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-      context: context,
-    );
-
-    if (datePicker != null) {
-      setState(() {
-        _dateController.text = datePicker.formatDate();
-        _dateTime = datePicker;
-      });
-    }
-  }
-
   void _onFemaleChanged(String value) {
     final male = _maleController.text;
 
@@ -602,6 +714,9 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
         }
       }
     });
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
   }
 
   void _onMaleChanged(String value) {
@@ -616,35 +731,9 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
         }
       }
     });
-  }
 
-  void _onSubmitPressed() {
-    if (_valid) {
-      final dateText = _dateController.text;
-      final dateFormat = DateFormat('MMM dd, yyyy').parse(dateText);
-      final date = dateFormat.secondsSinceEpoch();
-
-      final survey = EstablishmentSurveyModel.add(
-        date: date,
-        total: num.parse(_totalController.text),
-        female: num.parse(_femaleController.text),
-        male: num.parse(_maleController.text),
-        country: _country ?? 'N/A',
-        region: _region?.name,
-        province: _province?.name,
-        municipality: _municipality?.name,
-      );
-
-      final address = AddressModel(
-        country: _country ?? 'N/A',
-        region: _region,
-        province: _province,
-        municipality: _municipality,
-      );
-
-      context.pop();
-      widget._onSubmitPressed(survey, address);
-    }
+    //  Call the on survey changed method.
+    _onSurveyChanged();
   }
 
   /// Method to handle the country changed.
@@ -660,6 +749,9 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
       //  Run the region cubit.
       _regionCubit.run();
     }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
   }
 
   /// Method to handle the region changed.
@@ -675,6 +767,9 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
       //  Run the province cubit.
       _provinceCubit.run(province.code);
     }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
   }
 
   /// Method to handle the province changed.
@@ -690,6 +785,9 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
       //
       _municipalityCubit.run(province.code);
     }
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
   }
 
   /// Method to handle the municipality changed.
@@ -697,6 +795,27 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
     setState(() {
       _municipality = municipality;
     });
+
+    //  Call the on survey changed method.
+    _onSurveyChanged();
+  }
+
+  void _onSurveyChanged() {
+    final dateText = widget._dateTime;
+    final date = dateText.secondsSinceEpoch();
+
+    final survey = EstablishmentSurveyModel.add(
+      date: date,
+      total: num.parse(_totalController.text),
+      female: num.parse(_femaleController.text),
+      male: num.parse(_maleController.text),
+      country: _country ?? 'N/A',
+      region: _region?.name,
+      province: _province?.name,
+      municipality: _municipality?.name,
+    );
+
+    widget._onSurveyChanged(survey, _valid);
   }
 
   @override
@@ -713,93 +832,68 @@ class _BottomSheetState extends State<_SurveyBottomSheet> {
           create: (context) => _municipalityCubit,
         ),
       ],
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 16,
-              children: [
-                RoundedTextField(
-                  controller: _dateController,
-                  label: 'When did they visit?',
-                  readOnly: true,
-                  suffixIcon: IconButton(
-                    onPressed: _showDatePicker,
-                    icon: const Icon(Icons.calendar_today),
-                  ),
-                ),
-                RoundedTextField(
-                  controller: _totalController,
-                  label: 'Total Visitors',
-                  errorText: _totalErrorText,
+      child: Column(
+        children: [
+          RoundedTextField(
+            controller: _totalController,
+            label: 'Total Visitors',
+            errorText: _totalErrorText,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            keyboardType: TextInputType.number,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: RoundedTextField(
+                  controller: _femaleController,
+                  onChanged: _onFemaleChanged,
+                  label: 'Female',
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                   keyboardType: TextInputType.number,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: RoundedTextField(
-                        controller: _femaleController,
-                        onChanged: _onFemaleChanged,
-                        label: 'Female',
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const Gap(8),
-                    Expanded(
-                      child: RoundedTextField(
-                        controller: _maleController,
-                        onChanged: _onMaleChanged,
-                        label: 'Male',
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
+              ),
+              const Gap(8),
+              Expanded(
+                child: RoundedTextField(
+                  controller: _maleController,
+                  onChanged: _onMaleChanged,
+                  label: 'Male',
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
                   ],
+                  keyboardType: TextInputType.number,
                 ),
-                CountryDropdown(
-                  country: _country,
-                  onCountryChanged: _onCountryChanged,
-                ),
-                if (_country == sPhilippines) ...[
-                  RegionDropdown(
-                    bloc: _regionCubit,
-                    onChanged: _onRegionChanged,
-                    value: _region,
-                  ),
-                  ProvinceDropdown(
-                    bloc: _provinceCubit,
-                    onChanged: _onProvinceChanged,
-                    value: _province,
-                  ),
-                  MunicipalityDropdown(
-                    bloc: _municipalityCubit,
-                    onChanged: _onMunicipalityChanged,
-                    value: _municipality,
-                    isFiltered: false,
-                  ),
-                ],
-                RoundedButton(
-                  onPressed: _valid ? _onSubmitPressed : null,
-                  label: 'Submit',
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
+          CountryDropdown(
+            country: _country,
+            onCountryChanged: _onCountryChanged,
+          ),
+          if (_country == sPhilippines) ...[
+            RegionDropdown(
+              bloc: _regionCubit,
+              onChanged: _onRegionChanged,
+              value: _region,
+            ),
+            ProvinceDropdown(
+              bloc: _provinceCubit,
+              onChanged: _onProvinceChanged,
+              value: _province,
+            ),
+            MunicipalityDropdown(
+              bloc: _municipalityCubit,
+              onChanged: _onMunicipalityChanged,
+              value: _municipality,
+              isFiltered: false,
+            ),
+          ],
+        ],
       ),
     );
   }
